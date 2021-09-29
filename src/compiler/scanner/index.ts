@@ -8,10 +8,10 @@ class Scanner {
   line: number;
   errors: {
     line: number;
-    tips: string;
+    message: string;
   }[];
 
-  constructor (source: string) {
+  constructor(source: string) {
     this.source = source;
     this.tokens = [];
     this.start = 0;
@@ -19,7 +19,7 @@ class Scanner {
     this.line = 1;
     this.errors = [];
 
-    while(!this.isAtEnd()) {
+    while (!this.isAtEnd()) {
       this.start = this.current;
       this.scanToken();
     }
@@ -27,10 +27,10 @@ class Scanner {
     this.tokens.push(new Token(TokenType.EOF, '', '', this.line));
   }
 
-  scanToken() {
+  scanToken(): void {
     const code = this.advance();
 
-    switch(code) {
+    switch (code) {
       case '(':
         this.addToken(TokenType.LEFT_PAREN);
         break;
@@ -43,22 +43,22 @@ class Scanner {
       case '}':
         this.addToken(TokenType.RIGHT_BRACE);
         break;
-      case ',': 
+      case ',':
         this.addToken(TokenType.COMMA);
         break;
-      case '.': 
+      case '.':
         this.addToken(TokenType.DOT);
         break;
-      case '-': 
+      case '-':
         this.addToken(TokenType.MINUS);
         break;
-      case '+': 
+      case '+':
         this.addToken(TokenType.PLUS);
         break;
-      case ';': 
+      case ';':
         this.addToken(TokenType.SEMICOLON);
         break;
-      case '*': 
+      case '*':
         this.addToken(TokenType.STAR);
         break;
       case '!':
@@ -85,7 +85,7 @@ class Scanner {
       case ' ':
       case '\r':
       case '\t':
-        break;  
+        break;
       case '\n':
         this.line++;
         break;
@@ -99,29 +99,29 @@ class Scanner {
         } else if (this.isAlpha(code)) {
           this.handleAlpha();
         } else {
-          this.errors.push({ line: this.line, tips: 'Unexpected character.' });
+          this.errors.push({ line: this.line, message: 'Unexpected character.' });
         }
         break;
     }
   };
 
-  isAtEnd() {
+  isAtEnd(): boolean {
     return this.current >= this.source.length;
   }
 
-  advance() {
-    return this.source[this.current++];
+  advance(): string {
+    return this.source[this.current++] || '';
   }
 
-  peek() {
-    return this.source[this.current] || '\0';
+  peek(): string {
+    return this.source[this.current] || '';
   }
 
-  peekNext() {
-    return this.source[this.current + 1] || '\0';
+  peekNext(): string {
+    return this.source[this.current + 1] || '';
   }
 
-  match(expected: string) {
+  match(expected: string): boolean {
     if (this.isAtEnd()) {
       return false;
     }
@@ -134,15 +134,15 @@ class Scanner {
     return true;
   }
 
-  isDigit(code: string) {
-    return /[0-9]/.test(code);
+  isDigit(code: string): boolean {
+    return /^[0-9]$/.test(code);
   }
 
-  isAlpha(code: string) {
-    return /[_a-zA-Z]/.test(code);
+  isAlpha(code: string): boolean {
+    return /^[_a-zA-Z]$/.test(code);
   }
 
-  handleString(code: '"' | "'") {
+  handleString(code: '"' | "'"): void {
     while (this.peek() !== code && !this.isAtEnd()) {
       if (this.peek() === '\n') {
         this.line++;
@@ -151,7 +151,7 @@ class Scanner {
     }
 
     if (this.isAtEnd()) {
-      this.errors.push({ line: this.line, tips: 'Unterminated string.' });
+      this.errors.push({ line: this.line, message: 'Unterminated string.' });
       return;
     }
 
@@ -161,7 +161,7 @@ class Scanner {
     this.addToken(TokenType.STRING, value);
   }
 
-  handleDigit() {
+  handleDigit(): void {
     while (this.isDigit(this.peek())) {
       this.advance();
     }
@@ -178,8 +178,8 @@ class Scanner {
     this.addToken(TokenType.NUMBER, value);
   }
 
-  handleAlpha() {
-    while(this.isAlpha(this.peek()) || this.isDigit(this.peek())) {
+  handleAlpha(): void {
+    while (this.isAlpha(this.peek()) || this.isDigit(this.peek())) {
       this.advance();
     }
 
@@ -189,7 +189,7 @@ class Scanner {
     this.addToken(type);
   }
 
-  addToken(type: TokenType, literal?: string | number) {
+  addToken(type: TokenType, literal?: string | number): void {
     const lexeme = this.source.slice(this.start, this.current);
     this.tokens.push(new Token(type, lexeme, literal || '', this.line));
   }
