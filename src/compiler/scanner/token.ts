@@ -70,18 +70,14 @@ export const KEYWORDS_MAP = {
 class Token {
   type: TokenType;
   lexeme: string;
-  literal: string | number;
   line: number;
+  literal?: any;
 
-  constructor(type: TokenType, lexeme: string, literal: string | number, line: number) {
-    this.type = type;
-    this.lexeme = lexeme;
-    this.literal = literal;
-    this.line = line;
-  }
-
-  toString(): string {
-    return `${this.type} ${this.lexeme} ${this.literal}`
+  constructor(props: { type: TokenType; lexeme: string; line: number; literal?: any; }) {
+    this.type = props.type;
+    this.lexeme = props.lexeme;
+    this.line = props.line;
+    this.literal = props.literal;
   }
 }
 

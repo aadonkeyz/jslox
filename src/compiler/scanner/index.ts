@@ -24,7 +24,7 @@ class Scanner {
       this.scanToken();
     }
 
-    this.tokens.push(new Token(TokenType.EOF, '', '', this.line));
+    this.tokens.push(new Token({ type: TokenType.EOF, lexeme: '', line: this.line }));
   }
 
   scanToken(): void {
@@ -191,7 +191,7 @@ class Scanner {
 
   addToken(type: TokenType, literal?: string | number): void {
     const lexeme = this.source.slice(this.start, this.current);
-    this.tokens.push(new Token(type, lexeme, literal || '', this.line));
+    this.tokens.push(new Token({ type, lexeme, line: this.line, literal }));
   }
 }
 

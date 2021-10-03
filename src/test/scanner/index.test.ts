@@ -1,4 +1,4 @@
-import Scanner, { TokenType } from '../../scanner';
+import Scanner, { TokenType } from '../../compiler/scanner';
 
 describe('scanner', () => {
   test('keywords', () => {
@@ -94,7 +94,7 @@ describe('scanner', () => {
   })
 
   test('errors', () => {
-    const source = '@"asdfas@';
+    const source = '@ 1 "asdfas';
     const scanner = new Scanner(source);
 
     expect(scanner.errors.length).toBe(2);
@@ -104,5 +104,12 @@ describe('scanner', () => {
 
     expect(scanner.errors[1].line).toBe(1);
     expect(scanner.errors[1].message).toBe('Unterminated string.');
+
+    expect(scanner.tokens[0].type).toBe(TokenType.NUMBER);
+    expect(scanner.tokens[0].lexeme).toBe('1');
+    expect(scanner.tokens[0].literal).toBe(1);
+
+    expect(scanner.tokens[1].type).toBe(TokenType.EOF);
+    expect(scanner.tokens[1].lexeme).toBe('');
   })
 })
