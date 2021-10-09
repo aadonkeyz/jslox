@@ -18,7 +18,9 @@ class Scanner {
     this.current = 0;
     this.line = 1;
     this.errors = [];
+  }
 
+  scan(): void {
     while (!this.isAtEnd()) {
       this.start = this.current;
       this.scanToken();

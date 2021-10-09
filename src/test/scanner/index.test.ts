@@ -22,6 +22,7 @@ describe('scanner', () => {
     ];
     const source = keywords.join(' ');
     const scanner = new Scanner(source);
+    scanner.scan();
 
     scanner.tokens.slice(0, keywords.length).forEach((token) => {
       expect(token.type).toBe(token.lexeme);
@@ -54,6 +55,7 @@ describe('scanner', () => {
     ]
     const source = symbols.join(' ');
     const scanner = new Scanner(source);
+    scanner.scan();
 
     scanner.tokens.slice(0, symbols.length).forEach((token) => {
       expect(token.type).toBe(token.lexeme);
@@ -65,6 +67,7 @@ describe('scanner', () => {
   test('literals', () => {
     const source = 'identifier "string" 1';
     const scanner = new Scanner(source);
+    scanner.scan();
 
     expect(scanner.tokens[0].type).toBe(TokenType.IDENTIFIER);
     expect(scanner.tokens[0].lexeme).toBe('identifier');
@@ -85,6 +88,7 @@ describe('scanner', () => {
     const source = `"a
     b"`;
     const scanner = new Scanner(source);
+    scanner.scan();
 
     expect(scanner.line).toBe(2);
     expect(scanner.tokens[0].literal).toBe('a\n    b');
@@ -96,6 +100,7 @@ describe('scanner', () => {
   test('errors', () => {
     const source = '@ 1 "asdfas';
     const scanner = new Scanner(source);
+    scanner.scan();
 
     expect(scanner.errors.length).toBe(2);
 
