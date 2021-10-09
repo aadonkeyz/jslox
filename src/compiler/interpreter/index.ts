@@ -5,10 +5,50 @@ import Environment from '../environment';
 class Interpreter {
   errors: { token: Token; message: string }[];
   environment: Environment;
+  statements: Statement.BaseStatement[];
 
-  constructor() {
+  constructor(statements: Statement.BaseStatement[]) {
     this.errors = [];
     this.environment = new Environment();
+    this.statements = statements;
+  }
+
+  interpret(): void {
+    try {
+      for (let i = 0; i < this.statements.length; i++) {
+        this.execute(this.statements[i]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  visitExpressionStatement(statement: Statement.ExpressionStatement): void {
+    this.evaluate(statement.expression);
+  }
+
+  visitPrintStatement(statement: Statement.PrintStatement): void {
+    const val = this.evaluate(statement.expression);
+    console.log(val);
+  }
+
+  visitVarStatement(statement: Statement.VarStatement): void {
+    const value = statement.initializer
+      ? this.evaluate(statement.initializer)
+      : undefined;
+
+    this.environment.define(statement.name.lexeme, value);
+  }
+
+  visitBlockStatement(statement: Statement.BlockStatement): void {
+    const previous = this.environment;
+    this.environment = new Environment();
+
+    for (let i = 0; i < statement.statements.length; i++) {
+      this.execute(statement.statements[i]);
+    }
+
+    this.environment = previous;
   }
 
   visitLiteralExpression(expr: Expression.LiteralExpression): any {
@@ -46,7 +86,10 @@ class Interpreter {
           return left + right;
         }
 
-        this.errors.push({ token: expr.operator, message: 'Operands must be two numbers or two strings.' });
+        this.errors.push({
+          token: expr.operator,
+          message: 'Operands must be two numbers or two strings.',
+        });
         throw new Error();
       case TokenType.MINUS:
         this.checkNumberOperands(expr.operator, left, right);
@@ -76,7 +119,7 @@ class Interpreter {
     }
   }
 
-  visitAssignExpression(expr: Expression.AssignExpression): any {
+  visitAssignmentExpression(expr: Expression.AssignmentExpression): any {
     const value = this.evaluate(expr.value);
     this.environment.assign(expr.name, value);
     return value;
@@ -86,48 +129,12 @@ class Interpreter {
     return this.environment.get(expr.name);
   }
 
-  visitExpressionStatement(statement: Statement.ExpressionStatement): void {
-    this.evaluate(statement.expression);
-  }
-
-  visitPrintStatement(statement: Statement.PrintStatement): void {
-    const val = this.evaluate(statement.expression);
-    console.log(val);
-  }
-
-  visitVarStatement(statement: Statement.VarStatement): void {
-    const value = statement.initializer ? this.evaluate(statement.initializer) : undefined;
-
-    this.environment.define(statement.name.lexeme, value);
-  }
-
-  visitBlockStatement(statement: Statement.BlockStatement): void {
-    const previous = this.environment;
-    this.environment = new Environment();
-
-    for (let i = 0; i < statement.statements.length; i++) {
-      this.execute(statement.statements[i]);
-    }
-
-    this.environment = previous;
-  }
-
   evaluate(expr: Expression.BaseExpression): any {
     return expr.accept(this);
   }
 
   execute(statement: Statement.BaseStatement): void {
     statement.accept(this);
-  }
-
-  interpret(statements: Statement.BaseStatement[]): void {
-    try {
-      for (let i = 0; i < statements.length; i++) {
-        this.execute(statements[i]);
-      }
-    } catch (error) {
-      console.log(error);
-    }
   }
 
   checkNumberOperand(token: Token, operand: any) {
@@ -149,8 +156,6 @@ class Interpreter {
       throw new Error();
     }
   }
-};
-
-export {
-  Interpreter as default,
 }
+
+export { Interpreter as default };

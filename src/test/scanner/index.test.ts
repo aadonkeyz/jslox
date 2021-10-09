@@ -29,7 +29,7 @@ describe('scanner', () => {
     });
     expect(scanner.tokens[keywords.length].type).toBe(TokenType.EOF);
     expect(scanner.tokens[keywords.length].lexeme).toBe('');
-  })
+  });
 
   test('symbols', () => {
     const symbols = [
@@ -52,7 +52,7 @@ describe('scanner', () => {
       TokenType.GREATER_EQUAL,
       TokenType.LESS,
       TokenType.LESS_EQUAL,
-    ]
+    ];
     const source = symbols.join(' ');
     const scanner = new Scanner(source);
     scanner.scan();
@@ -62,7 +62,7 @@ describe('scanner', () => {
     });
     expect(scanner.tokens[symbols.length].type).toBe(TokenType.EOF);
     expect(scanner.tokens[symbols.length].lexeme).toBe('');
-  })
+  });
 
   test('literals', () => {
     const source = 'identifier "string" 1';
@@ -82,7 +82,7 @@ describe('scanner', () => {
 
     expect(scanner.tokens[3].type).toBe(TokenType.EOF);
     expect(scanner.tokens[3].lexeme).toBe('');
-  })
+  });
 
   test('multiline text', () => {
     const source = `"a
@@ -95,7 +95,7 @@ describe('scanner', () => {
 
     expect(scanner.tokens[1].type).toBe(TokenType.EOF);
     expect(scanner.tokens[1].lexeme).toBe('');
-  })
+  });
 
   test('errors', () => {
     const source = '@ 1 "asdfas';
@@ -116,5 +116,5 @@ describe('scanner', () => {
 
     expect(scanner.tokens[1].type).toBe(TokenType.EOF);
     expect(scanner.tokens[1].lexeme).toBe('');
-  })
-})
+  });
+});

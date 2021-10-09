@@ -2,10 +2,8 @@ import { Token } from '../scanner';
 import Interpreter from '../interpreter';
 
 class BaseExpression {
-  accept(interpreter: Interpreter) {
-
-  }
-};
+  accept(interpreter: Interpreter) {}
+}
 
 class BinaryExpression extends BaseExpression {
   left: BaseExpression;
@@ -78,7 +76,7 @@ class VariableExpression extends BaseExpression {
   }
 }
 
-class AssignExpression extends BaseExpression {
+class AssignmentExpression extends BaseExpression {
   name: Token;
   value: BaseExpression;
 
@@ -89,7 +87,7 @@ class AssignExpression extends BaseExpression {
   }
 
   accept(interpreter: Interpreter): any {
-    return interpreter.visitAssignExpression(this);
+    return interpreter.visitAssignmentExpression(this);
   }
 }
 
@@ -100,5 +98,5 @@ export {
   LiteralExpression,
   UnaryExpression,
   VariableExpression,
-  AssignExpression,
-}
+  AssignmentExpression,
+};

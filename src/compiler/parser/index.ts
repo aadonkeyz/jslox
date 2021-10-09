@@ -10,9 +10,9 @@ import * as Statement from './statement';
  * block          → "{" declaration* "}" ;
  * exprStmt       → expression ";"
  * printStmt      → "print" expression ";"
- * 
- * 
- * 
+ *
+ *
+ *
  * expression     → assignment
  * assignment     → IDENTIFIER "=" assignment | equality
  * equality       → comparison ( ( "!=" | "==" ) comparison )*
@@ -20,7 +20,7 @@ import * as Statement from './statement';
  * term           → factor ( ( "-" | "+" ) factor )*
  * factor         → unary ( ( "/" | "*" ) unary )*
  * unary          → ( "!" | "-" ) unary | primary
- * primary        → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" | IDENTIFIER
+ * primary        → NUMBER | STRING | "true" | "false" | "nil" | IDENTIFIER | "(" expression ")"
  */
 
 class Parser {
@@ -48,7 +48,7 @@ class Parser {
   declaration(): Statement.BaseStatement | undefined {
     try {
       if (this.match([TokenType.VAR])) {
-        return this.varDeclaration();
+        return this.varDecl();
       }
 
       return this.statement();
@@ -57,7 +57,7 @@ class Parser {
     }
   }
 
-  varDeclaration(): Statement.BaseStatement {
+  varDecl(): Statement.BaseStatement {
     const name = this.consume(TokenType.IDENTIFIER, 'Expect variable name.');
     let initializer;
     if (this.match([TokenType.EQUAL])) {
@@ -70,14 +70,14 @@ class Parser {
 
   statement(): Statement.BaseStatement {
     if (this.match([TokenType.PRINT])) {
-      return this.printStatement();
+      return this.printStmt();
     }
 
     if (this.match([TokenType.LEFT_BRACE])) {
       return new Statement.BlockStatement(this.block());
     }
 
-    return this.expressionStatement()
+    return this.exprStmt();
   }
 
   block(): Statement.BaseStatement[] {
@@ -94,13 +94,13 @@ class Parser {
     return statements;
   }
 
-  expressionStatement(): Statement.BaseStatement {
+  exprStmt(): Statement.BaseStatement {
     const expr = this.expression();
     this.consume(TokenType.SEMICOLON, 'Expect ";" after expression.');
     return new Statement.ExpressionStatement(expr);
   }
 
-  printStatement(): Statement.BaseStatement {
+  printStmt(): Statement.BaseStatement {
     const expr = this.expression();
     this.consume(TokenType.SEMICOLON, 'Expect ";" after value.');
     return new Statement.PrintStatement(expr);
@@ -119,14 +119,14 @@ class Parser {
 
       if (expr instanceof Expression.VariableExpression) {
         const name = expr.name;
-        return new Expression.AssignExpression(name, value);
+        return new Expression.AssignmentExpression(name, value);
       }
 
       this.errors.push({
         line: equals.line,
         where: equals.lexeme,
         message: 'Invalid assignment target.',
-      })
+      });
       throw new Error();
     }
 
@@ -148,7 +148,14 @@ class Parser {
   comparison(): Expression.BaseExpression {
     let expr = this.term();
 
-    while (this.match([TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL])) {
+    while (
+      this.match([
+        TokenType.GREATER,
+        TokenType.GREATER_EQUAL,
+        TokenType.LESS,
+        TokenType.LESS_EQUAL,
+      ])
+    ) {
       const operator = this.previous();
       const right = this.term();
       expr = new Expression.BinaryExpression(expr, operator, right);
@@ -208,21 +215,21 @@ class Parser {
       return new Expression.LiteralExpression(null);
     }
 
+    if (this.match([TokenType.IDENTIFIER])) {
+      return new Expression.VariableExpression(this.previous());
+    }
+
     if (this.match([TokenType.LEFT_PAREN])) {
       const expr = new Expression.GroupingExpression(this.expression());
       this.consume(TokenType.RIGHT_PAREN, 'Expect ")" after expression.');
       return expr;
     }
 
-    if (this.match([TokenType.IDENTIFIER])) {
-      return new Expression.VariableExpression(this.previous());
-    }
-
     this.errors.push({
       line: this.peek().line,
       where: this.peek().lexeme,
-      message: 'Expect expression.',
-    })
+      message: `Unexpected token "${this.peek().lexeme}".`,
+    });
     throw new Error();
   }
 
@@ -244,7 +251,8 @@ class Parser {
 
     this.errors.push({
       line: this.peek().line,
-      where: tokenType === TokenType.EOF ? 'at end' : `at ${this.peek().lexeme}`,
+      where:
+        tokenType === TokenType.EOF ? 'at end' : `at ${this.peek().lexeme}`,
       message,
     });
     throw new Error();
@@ -300,8 +308,4 @@ class Parser {
   }
 }
 
-export {
-  Parser as default,
-  Expression,
-  Statement
-};
+export { Parser as default, Expression, Statement };

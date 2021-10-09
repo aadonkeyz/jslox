@@ -3,10 +3,8 @@ import Interpreter from '../interpreter';
 import { Token } from '../scanner';
 
 class BaseStatement {
-  accept(interpreter: Interpreter) {
-
-  }
-};
+  accept(interpreter: Interpreter) {}
+}
 
 class ExpressionStatement extends BaseStatement {
   expression: BaseExpression;
@@ -19,7 +17,7 @@ class ExpressionStatement extends BaseStatement {
   accept(interpreter: Interpreter): any {
     return interpreter.visitExpressionStatement(this);
   }
-};
+}
 
 class PrintStatement extends BaseStatement {
   expression: BaseExpression;
@@ -32,7 +30,7 @@ class PrintStatement extends BaseStatement {
   accept(interpreter: Interpreter): any {
     return interpreter.visitPrintStatement(this);
   }
-};
+}
 
 class VarStatement extends BaseStatement {
   name: Token;
@@ -68,4 +66,4 @@ export {
   PrintStatement,
   VarStatement,
   BlockStatement,
-}
+};
