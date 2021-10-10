@@ -22,6 +22,33 @@ class Interpreter {
     this.evaluate(node.expression);
   }
 
+  visitIfStatement(node: Statement.IfStatement): void {
+    if (this.evaluate(node.condition)) {
+      this.execute(node.thenBranch);
+    } else if (node.elseBranch) {
+      this.execute(node.elseBranch);
+    }
+  }
+
+  visitWhileStatement(node: Statement.WhileStatement): void {
+    while (this.evaluate(node.condition)) {
+      this.execute(node.body);
+    }
+  }
+
+  visitForStatement(node: Statement.ForStatement): void {
+    const previous = this.environment;
+    this.environment = new Environment(previous);
+
+    node.initializer && this.evaluate(node.initializer);
+    while (node.condition && this.evaluate(node.condition)) {
+      this.execute(node.body);
+      node.updator && this.evaluate(node.updator);
+    }
+
+    this.environment = previous;
+  }
+
   visitPrintStatement(node: Statement.PrintStatement): void {
     const val = this.evaluate(node.expression);
     console.log(val);
@@ -112,6 +139,24 @@ class Interpreter {
         return left !== right;
       case TokenType.EQUAL_EQUAL:
         return left === right;
+    }
+  }
+
+  visitLogicalExpression(node: Expression.LogicalExpression): any {
+    const left = this.evaluate(node.left);
+
+    if (node.operator.type === TokenType.OR) {
+      if (left) {
+        return left;
+      }
+      return this.evaluate(node.right);
+    }
+
+    if (node.operator.type === TokenType.AND) {
+      if (left) {
+        return this.evaluate(node.right);
+      }
+      return left;
     }
   }
 

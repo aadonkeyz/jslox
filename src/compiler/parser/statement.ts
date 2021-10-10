@@ -1,4 +1,4 @@
-import { BaseExpression } from './expression';
+import { BaseExpression, AssignmentExpression } from './expression';
 import Interpreter from '../interpreter';
 import { Token } from '../scanner';
 
@@ -19,6 +19,27 @@ class ExpressionStatement extends BaseStatement {
   }
 }
 
+class IfStatement extends BaseStatement {
+  condition: BaseExpression;
+  thenBranch: BaseStatement;
+  elseBranch?: BaseStatement;
+
+  constructor(
+    condition: BaseExpression,
+    thenBranch: BaseStatement,
+    elseBranch?: BaseStatement,
+  ) {
+    super();
+    this.condition = condition;
+    this.thenBranch = thenBranch;
+    this.elseBranch = elseBranch;
+  }
+
+  accept(interpreter: Interpreter): any {
+    return interpreter.visitIfStatement(this);
+  }
+}
+
 class PrintStatement extends BaseStatement {
   expression: BaseExpression;
 
@@ -29,6 +50,45 @@ class PrintStatement extends BaseStatement {
 
   accept(interpreter: Interpreter): any {
     return interpreter.visitPrintStatement(this);
+  }
+}
+
+class WhileStatement extends BaseStatement {
+  condition: BaseExpression;
+  body: BaseStatement;
+
+  constructor(condition: BaseExpression, body: BaseStatement) {
+    super();
+    this.condition = condition;
+    this.body = body;
+  }
+
+  accept(interpreter: Interpreter): any {
+    return interpreter.visitWhileStatement(this);
+  }
+}
+
+class ForStatement extends BaseStatement {
+  initializer?: BaseStatement;
+  condition?: BaseExpression;
+  updator?: BaseExpression;
+  body: BaseStatement;
+
+  constructor(props: {
+    initializer?: BaseStatement;
+    condition?: BaseExpression;
+    updator?: BaseExpression;
+    body: BaseStatement;
+  }) {
+    super();
+    this.initializer = props.initializer;
+    this.condition = props.condition;
+    this.updator = props.updator;
+    this.body = props.body;
+  }
+
+  accept(interpreter: Interpreter): any {
+    return interpreter.visitForStatement(this);
   }
 }
 
@@ -63,7 +123,10 @@ class BlockStatement extends BaseStatement {
 export {
   BaseStatement,
   ExpressionStatement,
+  IfStatement,
   PrintStatement,
+  WhileStatement,
+  ForStatement,
   VarStatement,
   BlockStatement,
 };

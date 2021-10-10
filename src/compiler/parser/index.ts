@@ -6,15 +6,20 @@ import * as Statement from './statement';
  * program        → declaration* EOF
  * declaration    → varDecl | statement
  * varDecl        → "var" IDENTIFIER ( "=" expression )? ";"
- * statement      → exprStmt | printStmt | block
- * block          → "{" declaration* "}" ;
+ * statement      → exprStmt | forStmt | ifStmt | printStmt | whileStmt | block
  * exprStmt       → expression ";"
+ * ifStmt         → "if" "(" expression ")" statement ( "else" statement )?
+ * forStmt        → "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement
  * printStmt      → "print" expression ";"
+ * whileStmt      → "while" "(" expression ")" statement
+ * block          → "{" declaration* "}" ;
  *
  *
  *
  * expression     → assignment
- * assignment     → IDENTIFIER "=" assignment | equality
+ * assignment     → IDENTIFIER "=" assignment | logicOr
+ * logicOr        → logicAnd ("or" logicAnd)*
+ * logicAnd       → equality ("and" equality)*
  * equality       → comparison ( ( "!=" | "==" ) comparison )*
  * comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )*
  * term           → factor ( ( "-" | "+" ) factor )*
@@ -69,8 +74,20 @@ class Parser {
   }
 
   statement(): Statement.BaseStatement {
+    if (this.match([TokenType.IF])) {
+      return this.ifStmt();
+    }
+
     if (this.match([TokenType.PRINT])) {
       return this.printStmt();
+    }
+
+    if (this.match([TokenType.WHILE])) {
+      return this.whileStmt();
+    }
+
+    if (this.match([TokenType.FOR])) {
+      return this.forStmt();
     }
 
     if (this.match([TokenType.LEFT_BRACE])) {
@@ -78,6 +95,21 @@ class Parser {
     }
 
     return this.exprStmt();
+  }
+
+  ifStmt(): Statement.BaseStatement {
+    this.consume(TokenType.LEFT_PAREN, 'Expect "(" after "if".');
+
+    const condition = this.expression();
+
+    this.consume(TokenType.RIGHT_PAREN, 'Expect "(" after if condition.');
+
+    const thenBranch = this.statement();
+    const elseBranch = this.match([TokenType.ELSE])
+      ? this.statement()
+      : undefined;
+
+    return new Statement.IfStatement(condition, thenBranch, elseBranch);
   }
 
   block(): Statement.BaseStatement[] {
@@ -95,15 +127,71 @@ class Parser {
   }
 
   exprStmt(): Statement.BaseStatement {
-    const expr = this.expression();
+    const expression = this.expression();
     this.consume(TokenType.SEMICOLON, 'Expect ";" after expression.');
-    return new Statement.ExpressionStatement(expr);
+    return new Statement.ExpressionStatement(expression);
   }
 
   printStmt(): Statement.BaseStatement {
-    const expr = this.expression();
+    const expression = this.expression();
     this.consume(TokenType.SEMICOLON, 'Expect ";" after value.');
-    return new Statement.PrintStatement(expr);
+    return new Statement.PrintStatement(expression);
+  }
+
+  whileStmt(): Statement.BaseStatement {
+    this.consume(TokenType.LEFT_PAREN, 'Expect "(" after "while".');
+    const condition = this.expression();
+    this.consume(TokenType.RIGHT_PAREN, 'Expect ")" after condition.');
+    const statement = this.statement();
+    return new Statement.WhileStatement(condition, statement);
+  }
+
+  forStmt(): Statement.ForStatement {
+    this.consume(TokenType.LEFT_PAREN, 'Expect "(" after "for".');
+
+    if (this.peek().type === TokenType.RIGHT_PAREN) {
+      this.errors.push({
+        line: this.peek().line,
+        where: this.peek().lexeme,
+        message: 'There is nothing exist in the parenthese of "for".',
+      });
+      throw new Error();
+    }
+
+    let initializer;
+    let condition;
+    let updator;
+
+    if (this.peek().type !== TokenType.SEMICOLON) {
+      initializer = this.declaration();
+    } else {
+      this.advance();
+    }
+
+    if (!this.match([TokenType.SEMICOLON])) {
+      condition = this.expression();
+      this.consume(
+        TokenType.SEMICOLON,
+        'Expect ";" after the condition of "for".',
+      );
+    }
+
+    if (!this.match([TokenType.RIGHT_PAREN])) {
+      updator = this.expression();
+      this.consume(
+        TokenType.RIGHT_PAREN,
+        'Expect ")" after the parenthese of "for".',
+      );
+    }
+
+    const body = this.statement();
+
+    return new Statement.ForStatement({
+      initializer,
+      condition,
+      updator,
+      body,
+    });
   }
 
   expression(): Expression.BaseExpression {
@@ -111,14 +199,14 @@ class Parser {
   }
 
   assignment(): Expression.BaseExpression {
-    let expr = this.equality();
+    let expression = this.logicOr();
 
     if (this.match([TokenType.EQUAL])) {
       const equals = this.previous();
       const value = this.assignment();
 
-      if (expr instanceof Expression.VariableExpression) {
-        const name = expr.name;
+      if (expression instanceof Expression.VariableExpression) {
+        const name = expression.name;
         return new Expression.AssignmentExpression(name, value);
       }
 
@@ -130,23 +218,55 @@ class Parser {
       throw new Error();
     }
 
-    return expr;
+    return expression;
+  }
+
+  logicOr(): Expression.BaseExpression {
+    let expression = this.logicAnd();
+
+    while (this.match([TokenType.OR])) {
+      const operator = this.previous();
+      const right = this.logicAnd();
+      expression = new Expression.LogicalExpression(
+        expression,
+        operator,
+        right,
+      );
+    }
+
+    return expression;
+  }
+
+  logicAnd(): Expression.BaseExpression {
+    let expression = this.equality();
+
+    while (this.match([TokenType.AND])) {
+      const operator = this.previous();
+      const right = this.equality();
+      expression = new Expression.LogicalExpression(
+        expression,
+        operator,
+        right,
+      );
+    }
+
+    return expression;
   }
 
   equality(): Expression.BaseExpression {
-    let expr = this.comparison();
+    let expression = this.comparison();
 
     while (this.match([TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL])) {
       const operator = this.previous();
       const right = this.comparison();
-      expr = new Expression.BinaryExpression(expr, operator, right);
+      expression = new Expression.BinaryExpression(expression, operator, right);
     }
 
-    return expr;
+    return expression;
   }
 
   comparison(): Expression.BaseExpression {
-    let expr = this.term();
+    let expression = this.term();
 
     while (
       this.match([
@@ -158,34 +278,34 @@ class Parser {
     ) {
       const operator = this.previous();
       const right = this.term();
-      expr = new Expression.BinaryExpression(expr, operator, right);
+      expression = new Expression.BinaryExpression(expression, operator, right);
     }
 
-    return expr;
+    return expression;
   }
 
   term(): Expression.BaseExpression {
-    let expr = this.factor();
+    let expression = this.factor();
 
     while (this.match([TokenType.MINUS, TokenType.PLUS])) {
       const operator = this.previous();
       const right = this.factor();
-      expr = new Expression.BinaryExpression(expr, operator, right);
+      expression = new Expression.BinaryExpression(expression, operator, right);
     }
 
-    return expr;
+    return expression;
   }
 
   factor(): Expression.BaseExpression {
-    let expr = this.unary();
+    let expression = this.unary();
 
     while (this.match([TokenType.SLASH, TokenType.STAR])) {
       const operator = this.previous();
       const right = this.unary();
-      expr = new Expression.BinaryExpression(expr, operator, right);
+      expression = new Expression.BinaryExpression(expression, operator, right);
     }
 
-    return expr;
+    return expression;
   }
 
   unary(): Expression.BaseExpression {
@@ -220,9 +340,9 @@ class Parser {
     }
 
     if (this.match([TokenType.LEFT_PAREN])) {
-      const expr = new Expression.GroupingExpression(this.expression());
+      const expression = new Expression.GroupingExpression(this.expression());
       this.consume(TokenType.RIGHT_PAREN, 'Expect ")" after expression.');
-      return expr;
+      return expression;
     }
 
     this.errors.push({

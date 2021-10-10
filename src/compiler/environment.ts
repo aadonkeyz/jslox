@@ -3,7 +3,7 @@ import reportError from './util/reportError';
 
 class Environment {
   values: Record<string, any>;
-  enclosing: Environment | undefined;
+  enclosing?: Environment;
 
   constructor(enclosing?: Environment) {
     this.values = {};

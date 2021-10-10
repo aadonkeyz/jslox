@@ -22,6 +22,23 @@ class BinaryExpression extends BaseExpression {
   }
 }
 
+class LogicalExpression extends BaseExpression {
+  left: BaseExpression;
+  operator: Token;
+  right: BaseExpression;
+
+  constructor(left: BaseExpression, operator: Token, right: BaseExpression) {
+    super();
+    this.left = left;
+    this.operator = operator;
+    this.right = right;
+  }
+
+  accept(interpreter: Interpreter): any {
+    return interpreter.visitLogicalExpression(this);
+  }
+}
+
 class GroupingExpression extends BaseExpression {
   expression: BaseExpression;
 
@@ -94,6 +111,7 @@ class AssignmentExpression extends BaseExpression {
 export {
   BaseExpression,
   BinaryExpression,
+  LogicalExpression,
   GroupingExpression,
   LiteralExpression,
   UnaryExpression,
