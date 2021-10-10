@@ -4,5 +4,11 @@
   "files.associations": {
     "*.ttml": "xml",
     "*.ttss": "css"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
 }

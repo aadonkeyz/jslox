@@ -1,12 +1,13 @@
 import { Token } from './scanner';
+import reportError from './util/reportError';
 
 class Environment {
   values: Record<string, any>;
-  enclosing: Environment | null;
+  enclosing: Environment | undefined;
 
-  constructor() {
+  constructor(enclosing?: Environment) {
     this.values = {};
-    this.enclosing = null;
+    this.enclosing = enclosing;
   }
 
   define(name: string, value: any): void {
@@ -22,12 +23,13 @@ class Environment {
       return this.enclosing.get(name);
     }
 
-    throw new Error(`Undefined variable "${name.lexeme}".`)
+    reportError(name.line, name.lexeme, 'Undefined variable');
   }
 
   assign(name: Token, value: any): void {
     if (name.lexeme in this.values) {
       this.values[name.lexeme] = value;
+      return;
     }
 
     if (this.enclosing) {
@@ -35,7 +37,7 @@ class Environment {
       return;
     }
 
-    throw new Error(`Undefined variable "${name.lexeme}".`)
+    reportError(name.line, name.lexeme, 'Undefined variable');
   }
 }
 
