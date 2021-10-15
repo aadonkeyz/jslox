@@ -28,7 +28,7 @@ for (; foo > 0; foo = foo - 1) {
     const source = `
 var foo = 3;
 var bar = 1;
-for (; foo > 0; foo = foo - 1) {
+for (var bar = 50; foo > 0; foo = foo - 1) {
   var bar = 100;
 }
 `;

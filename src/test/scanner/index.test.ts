@@ -33,8 +33,8 @@ describe('scanner', () => {
 
   test('symbols', () => {
     const symbols = [
-      TokenType.LEFT_PAREN,
-      TokenType.RIGHT_PAREN,
+      TokenType.LEFT_PARENTHESE,
+      TokenType.RIGHT_PARENTHESE,
       TokenType.LEFT_BRACE,
       TokenType.RIGHT_BRACE,
       TokenType.COMMA,

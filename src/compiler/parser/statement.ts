@@ -1,4 +1,4 @@
-import { BaseExpression, AssignmentExpression } from './expression';
+import { BaseExpression } from './expression';
 import Interpreter from '../interpreter';
 import { Token } from '../scanner';
 
@@ -120,6 +120,38 @@ class BlockStatement extends BaseStatement {
   }
 }
 
+class FunctionStatement extends BaseStatement {
+  name: Token;
+  params: Token[];
+  statements: BaseStatement[];
+
+  constructor(name: Token, params: Token[], statements: BaseStatement[]) {
+    super();
+    this.name = name;
+    this.params = params;
+    this.statements = statements;
+  }
+
+  accept(interpreter: Interpreter): void {
+    return interpreter.visitFunctionStatement(this);
+  }
+}
+
+class ReturnStatement extends BaseStatement {
+  keyword: Token;
+  value: BaseExpression;
+
+  constructor(keyword: Token, value: BaseExpression) {
+    super();
+    this.keyword = keyword;
+    this.value = value;
+  }
+
+  accept(interpreter: Interpreter): void {
+    return interpreter.visitReturnStatement(this);
+  }
+}
+
 export {
   BaseStatement,
   ExpressionStatement,
@@ -129,4 +161,6 @@ export {
   ForStatement,
   VarStatement,
   BlockStatement,
+  FunctionStatement,
+  ReturnStatement,
 };

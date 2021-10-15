@@ -2,13 +2,17 @@ import { Token, TokenType } from '../scanner';
 import { Expression, Statement } from '../parser';
 import Environment from '../environment';
 import reportError from '../util/reportError';
+import LoxFunction from './LoxFunction';
+import LoxReturn from './LoxReturn';
 
 class Interpreter {
+  global: Environment;
   environment: Environment;
   statements: Statement.BaseStatement[];
 
   constructor(statements: Statement.BaseStatement[]) {
-    this.environment = new Environment();
+    this.global = new Environment();
+    this.environment = this.global;
     this.statements = statements;
   }
 
@@ -16,6 +20,15 @@ class Interpreter {
     for (let i = 0; i < this.statements.length; i++) {
       this.execute(this.statements[i]);
     }
+  }
+
+  visitFunctionStatement(node: Statement.FunctionStatement): void {
+    const fun = new LoxFunction(node, this.environment);
+    this.environment.define(node.name.lexeme, fun);
+  }
+
+  visitReturnStatement(node: Statement.ReturnStatement): void {
+    throw new LoxReturn(this.evaluate(node.value));
   }
 
   visitExpressionStatement(node: Statement.ExpressionStatement): void {
@@ -63,14 +76,7 @@ class Interpreter {
   }
 
   visitBlockStatement(node: Statement.BlockStatement): void {
-    const previous = this.environment;
-    this.environment = new Environment(previous);
-
-    for (let i = 0; i < node.statements.length; i++) {
-      this.execute(node.statements[i]);
-    }
-
-    this.environment = previous;
+    this.executeBlock(node.statements, new Environment(this.environment));
   }
 
   visitLiteralExpression(node: Expression.LiteralExpression): any {
@@ -170,12 +176,49 @@ class Interpreter {
     return this.environment.get(node.name);
   }
 
+  visitCallExpression(node: Expression.CallExpression): any {
+    const callee = this.evaluate(node.callee);
+    const args = node.args.map((item) => this.evaluate(item));
+
+    if (!(callee instanceof LoxFunction)) {
+      reportError(
+        node.endParenthese.line,
+        node.endParenthese.lexeme,
+        'Can only call functions and classes.',
+      );
+    }
+
+    if (args.length !== callee.declaration.params.length) {
+      reportError(
+        node.endParenthese.line,
+        node.endParenthese.lexeme,
+        `Expect ${callee.declaration.params.length} arguments but got ${args.length}.`,
+      );
+    }
+
+    return callee.call(this, args);
+  }
+
   evaluate(node: Expression.BaseExpression): any {
     return node.accept(this);
   }
 
   execute(node: Statement.BaseStatement): void {
     node.accept(this);
+  }
+
+  executeBlock(
+    statements: Statement.BaseStatement[],
+    newEnvironment: Environment,
+  ): void {
+    const previous = this.environment;
+    this.environment = newEnvironment;
+
+    for (let i = 0; i < statements.length; i++) {
+      this.execute(statements[i]);
+    }
+
+    this.environment = previous;
   }
 
   checkNumberOperand(token: Token, operand: any) {

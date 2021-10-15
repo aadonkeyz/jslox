@@ -108,6 +108,27 @@ class AssignmentExpression extends BaseExpression {
   }
 }
 
+class CallExpression extends BaseExpression {
+  callee: BaseExpression;
+  args: BaseExpression[];
+  endParenthese: Token;
+
+  constructor(
+    callee: BaseExpression,
+    args: BaseExpression[],
+    endParenthese: Token,
+  ) {
+    super();
+    this.callee = callee;
+    this.args = args;
+    this.endParenthese = endParenthese;
+  }
+
+  accept(interpreter: Interpreter): any {
+    return interpreter.visitCallExpression(this);
+  }
+}
+
 export {
   BaseExpression,
   BinaryExpression,
@@ -117,4 +138,5 @@ export {
   UnaryExpression,
   VariableExpression,
   AssignmentExpression,
+  CallExpression,
 };

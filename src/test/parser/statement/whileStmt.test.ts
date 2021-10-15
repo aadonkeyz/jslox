@@ -1,7 +1,7 @@
 import Scanner, { Token, TokenType } from '../../../compiler/scanner';
 import Parser, { Expression, Statement } from '../../../compiler/parser';
 
-describe('while', () => {
+describe('whileStmt', () => {
   test('nothing to say', () => {
     const source = `
 while (foo) {

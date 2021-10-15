@@ -26,7 +26,9 @@ class Scanner {
       this.scanToken();
     }
 
-    this.tokens.push(new Token({ type: TokenType.EOF, lexeme: '', line: this.line }));
+    this.tokens.push(
+      new Token({ type: TokenType.EOF, lexeme: '', line: this.line }),
+    );
   }
 
   scanToken(): void {
@@ -34,10 +36,10 @@ class Scanner {
 
     switch (code) {
       case '(':
-        this.addToken(TokenType.LEFT_PAREN);
+        this.addToken(TokenType.LEFT_PARENTHESE);
         break;
       case ')':
-        this.addToken(TokenType.RIGHT_PAREN);
+        this.addToken(TokenType.RIGHT_PARENTHESE);
         break;
       case '{':
         this.addToken(TokenType.LEFT_BRACE);
@@ -67,13 +69,17 @@ class Scanner {
         this.addToken(this.match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
         break;
       case '=':
-        this.addToken(this.match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);
+        this.addToken(
+          this.match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL,
+        );
         break;
       case '<':
         this.addToken(this.match('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
         break;
       case '>':
-        this.addToken(this.match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
+        this.addToken(
+          this.match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER,
+        );
         break;
       case '/':
         if (this.match('/')) {
@@ -101,11 +107,14 @@ class Scanner {
         } else if (this.isAlpha(code)) {
           this.handleAlpha();
         } else {
-          this.errors.push({ line: this.line, message: 'Unexpected character.' });
+          this.errors.push({
+            line: this.line,
+            message: 'Unexpected character.',
+          });
         }
         break;
     }
-  };
+  }
 
   isAtEnd(): boolean {
     return this.current >= this.source.length;
@@ -186,7 +195,10 @@ class Scanner {
     }
 
     const lexeme = this.source.slice(this.start, this.current);
-    const type = lexeme in KEYWORDS_MAP ? KEYWORDS_MAP[lexeme as keyof typeof KEYWORDS_MAP] : TokenType.IDENTIFIER;
+    const type =
+      lexeme in KEYWORDS_MAP
+        ? KEYWORDS_MAP[lexeme as keyof typeof KEYWORDS_MAP]
+        : TokenType.IDENTIFIER;
 
     this.addToken(type);
   }
@@ -197,8 +209,4 @@ class Scanner {
   }
 }
 
-export {
-  Scanner as default,
-  Token,
-  TokenType
-}
+export { Scanner as default, Token, TokenType };

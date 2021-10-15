@@ -4,13 +4,17 @@ import * as Statement from './statement';
 
 /**
  * program        → declaration* EOF
- * declaration    → varDecl | statement
+ * declaration    → funDecl | varDecl | statement
+ * funDecl        → "fun" function
+ * function       → IDENTIFIER "(" parameters? ")" block
+ * parameters     → IDENTIFIER ( "," IDENTIFIER )*
  * varDecl        → "var" IDENTIFIER ( "=" expression )? ";"
- * statement      → exprStmt | forStmt | ifStmt | printStmt | whileStmt | block
+ * statement      → exprStmt | forStmt | ifStmt | printStmt | returnStmt | whileStmt | block
  * exprStmt       → expression ";"
  * ifStmt         → "if" "(" expression ")" statement ( "else" statement )?
  * forStmt        → "for" "(" ( varDecl | exprStmt | ";" ) expression? ";" expression? ")" statement
  * printStmt      → "print" expression ";"
+ * returnStmt     → "return" expression? ";"
  * whileStmt      → "while" "(" expression ")" statement
  * block          → "{" declaration* "}" ;
  *
@@ -24,7 +28,9 @@ import * as Statement from './statement';
  * comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )*
  * term           → factor ( ( "-" | "+" ) factor )*
  * factor         → unary ( ( "/" | "*" ) unary )*
- * unary          → ( "!" | "-" ) unary | primary
+ * unary          → ( "!" | "-" ) unary | call
+ * call           → primary ( "(" arguments? ")" )*
+ * arguments      → expression ( "," expression )*
  * primary        → NUMBER | STRING | "true" | "false" | "nil" | IDENTIFIER | "(" expression ")"
  */
 
@@ -52,6 +58,10 @@ class Parser {
 
   declaration(): Statement.BaseStatement | undefined {
     try {
+      if (this.match([TokenType.FUN])) {
+        return this.funDecl('function');
+      }
+
       if (this.match([TokenType.VAR])) {
         return this.varDecl();
       }
@@ -60,6 +70,26 @@ class Parser {
     } catch (error) {
       this.synchronize();
     }
+  }
+
+  funDecl(kind: 'function' | 'class'): Statement.BaseStatement {
+    const name = this.consume(TokenType.IDENTIFIER, `Expect ${kind} name`);
+    this.consume(TokenType.LEFT_PARENTHESE, `Expect "(" after ${kind} name.`);
+
+    const params: Token[] = [];
+    if (!this.check(TokenType.RIGHT_PARENTHESE)) {
+      do {
+        params.push(
+          this.consume(TokenType.IDENTIFIER, 'Expect parameter name.'),
+        );
+      } while (this.match([TokenType.COMMA]));
+    }
+    this.consume(TokenType.RIGHT_PARENTHESE, 'Expect ")" after parameters.');
+
+    this.consume(TokenType.LEFT_BRACE, `Expect "{" before ${kind} body.`);
+    const statements = this.block();
+
+    return new Statement.FunctionStatement(name, params, statements);
   }
 
   varDecl(): Statement.BaseStatement {
@@ -82,6 +112,10 @@ class Parser {
       return this.printStmt();
     }
 
+    if (this.match([TokenType.RETURN])) {
+      return this.returnStmt();
+    }
+
     if (this.match([TokenType.WHILE])) {
       return this.whileStmt();
     }
@@ -98,11 +132,11 @@ class Parser {
   }
 
   ifStmt(): Statement.BaseStatement {
-    this.consume(TokenType.LEFT_PAREN, 'Expect "(" after "if".');
+    this.consume(TokenType.LEFT_PARENTHESE, 'Expect "(" after "if".');
 
     const condition = this.expression();
 
-    this.consume(TokenType.RIGHT_PAREN, 'Expect "(" after if condition.');
+    this.consume(TokenType.RIGHT_PARENTHESE, 'Expect "(" after if condition.');
 
     const thenBranch = this.statement();
     const elseBranch = this.match([TokenType.ELSE])
@@ -138,18 +172,27 @@ class Parser {
     return new Statement.PrintStatement(expression);
   }
 
+  returnStmt(): Statement.BaseStatement {
+    const keyword = this.previous();
+    const value = this.check(TokenType.SEMICOLON)
+      ? new Expression.LiteralExpression(null)
+      : this.expression();
+    this.consume(TokenType.SEMICOLON, 'Expect ";" after return value.');
+    return new Statement.ReturnStatement(keyword, value);
+  }
+
   whileStmt(): Statement.BaseStatement {
-    this.consume(TokenType.LEFT_PAREN, 'Expect "(" after "while".');
+    this.consume(TokenType.LEFT_PARENTHESE, 'Expect "(" after "while".');
     const condition = this.expression();
-    this.consume(TokenType.RIGHT_PAREN, 'Expect ")" after condition.');
+    this.consume(TokenType.RIGHT_PARENTHESE, 'Expect ")" after condition.');
     const statement = this.statement();
     return new Statement.WhileStatement(condition, statement);
   }
 
   forStmt(): Statement.ForStatement {
-    this.consume(TokenType.LEFT_PAREN, 'Expect "(" after "for".');
+    this.consume(TokenType.LEFT_PARENTHESE, 'Expect "(" after "for".');
 
-    if (this.peek().type === TokenType.RIGHT_PAREN) {
+    if (this.check(TokenType.RIGHT_PARENTHESE)) {
       this.errors.push({
         line: this.peek().line,
         where: this.peek().lexeme,
@@ -162,7 +205,7 @@ class Parser {
     let condition;
     let updator;
 
-    if (this.peek().type !== TokenType.SEMICOLON) {
+    if (!this.check(TokenType.SEMICOLON)) {
       initializer = this.declaration();
     } else {
       this.advance();
@@ -176,10 +219,10 @@ class Parser {
       );
     }
 
-    if (!this.match([TokenType.RIGHT_PAREN])) {
+    if (!this.match([TokenType.RIGHT_PARENTHESE])) {
       updator = this.expression();
       this.consume(
-        TokenType.RIGHT_PAREN,
+        TokenType.RIGHT_PARENTHESE,
         'Expect ")" after the parenthese of "for".',
       );
     }
@@ -315,7 +358,34 @@ class Parser {
       return new Expression.UnaryExpression(operator, right);
     }
 
-    return this.primary();
+    return this.call();
+  }
+
+  call(): Expression.BaseExpression {
+    let expression = this.primary();
+
+    while (this.match([TokenType.LEFT_PARENTHESE])) {
+      expression = this.finishCall(expression);
+    }
+
+    return expression;
+  }
+
+  finishCall(callee: Expression.BaseExpression): Expression.BaseExpression {
+    const args: Expression.BaseExpression[] = [];
+
+    if (!this.check(TokenType.RIGHT_PARENTHESE)) {
+      do {
+        args.push(this.expression());
+      } while (this.match([TokenType.COMMA]));
+    }
+
+    const endParenthese = this.consume(
+      TokenType.RIGHT_PARENTHESE,
+      'Expect ")" after arguments.',
+    );
+
+    return new Expression.CallExpression(callee, args, endParenthese);
   }
 
   primary(): Expression.BaseExpression {
@@ -339,9 +409,9 @@ class Parser {
       return new Expression.VariableExpression(this.previous());
     }
 
-    if (this.match([TokenType.LEFT_PAREN])) {
+    if (this.match([TokenType.LEFT_PARENTHESE])) {
       const expression = new Expression.GroupingExpression(this.expression());
-      this.consume(TokenType.RIGHT_PAREN, 'Expect ")" after expression.');
+      this.consume(TokenType.RIGHT_PARENTHESE, 'Expect ")" after expression.');
       return expression;
     }
 

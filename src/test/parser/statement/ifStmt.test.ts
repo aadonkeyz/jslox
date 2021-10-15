@@ -1,7 +1,7 @@
 import Scanner, { Token, TokenType } from '../../../compiler/scanner';
 import Parser, { Expression, Statement } from '../../../compiler/parser';
 
-describe('if', () => {
+describe('ifStmt', () => {
   test('no else', () => {
     const source = `
 if (true) {

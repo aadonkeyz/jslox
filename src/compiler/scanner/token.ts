@@ -18,8 +18,8 @@ export enum TokenType {
   WHILE = 'while',
 
   // Single-character tokens.
-  LEFT_PAREN = '(',
-  RIGHT_PAREN = ')',
+  LEFT_PARENTHESE = '(',
+  RIGHT_PARENTHESE = ')',
   LEFT_BRACE = '{',
   RIGHT_BRACE = '}',
   COMMA = ',',
@@ -45,7 +45,7 @@ export enum TokenType {
   STRING = 'string',
   NUMBER = 'number',
 
-  EOF = 'eof'
+  EOF = 'eof',
 }
 
 export const KEYWORDS_MAP = {
@@ -65,7 +65,7 @@ export const KEYWORDS_MAP = {
   [TokenType.TRUE]: TokenType.TRUE,
   [TokenType.VAR]: TokenType.VAR,
   [TokenType.WHILE]: TokenType.WHILE,
-}
+};
 
 class Token {
   type: TokenType;
@@ -73,7 +73,12 @@ class Token {
   line: number;
   literal?: any;
 
-  constructor(props: { type: TokenType; lexeme: string; line: number; literal?: any; }) {
+  constructor(props: {
+    type: TokenType;
+    lexeme: string;
+    line: number;
+    literal?: any;
+  }) {
     this.type = props.type;
     this.lexeme = props.lexeme;
     this.line = props.line;

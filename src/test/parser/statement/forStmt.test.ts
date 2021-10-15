@@ -1,7 +1,7 @@
 import Scanner, { Token, TokenType } from '../../../compiler/scanner';
 import Parser, { Expression, Statement } from '../../../compiler/parser';
 
-describe('for', () => {
+describe('forStmt', () => {
   test('normal', () => {
     const source = `
 for (var foo = 3; foo > 0; foo = foo - 1) {
