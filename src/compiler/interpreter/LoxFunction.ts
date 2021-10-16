@@ -21,12 +21,12 @@ class LoxFunction {
 
     try {
       interpreter.executeBlock(this.declaration.statements, environment);
-    } catch (err) {
-      if (err instanceof LoxReturn) {
-        return err.value;
+    } catch (error) {
+      if (error instanceof LoxReturn) {
+        return error.value;
       }
 
-      throw err;
+      throw error;
     }
 
     return null;

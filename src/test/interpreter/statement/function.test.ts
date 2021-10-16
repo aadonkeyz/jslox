@@ -50,7 +50,7 @@ fun makeCounter() {
   var i = 0;
   fun count() {
     i = i + 1;
-    print i;
+    return i;
   }
 
   return count;
@@ -67,16 +67,39 @@ var b = counter();
     const interpreter = new Interpreter(parser.statements);
     interpreter.interpret();
 
-    // expect(
-    //   interpreter.environment.get(
-    //     new Token({ type: TokenType.IDENTIFIER, lexeme: 'a', line: 13 }),
-    //   ),
-    // ).toStrictEqual(1);
+    expect(
+      interpreter.environment.get(
+        new Token({ type: TokenType.IDENTIFIER, lexeme: 'a', line: 13 }),
+      ),
+    ).toStrictEqual(1);
 
-    // expect(
-    //   interpreter.environment.get(
-    //     new Token({ type: TokenType.IDENTIFIER, lexeme: 'b', line: 14 }),
-    //   ),
-    // ).toStrictEqual(2);
+    expect(
+      interpreter.environment.get(
+        new Token({ type: TokenType.IDENTIFIER, lexeme: 'b', line: 14 }),
+      ),
+    ).toStrictEqual(2);
+  });
+
+  test('fibonacci', () => {
+    const source = `
+fun fibonacci(n) {
+  if (n == 0) return 0;
+  else if (n==1) return 1;
+  else return fibonacci(n-1) + fibonacci(n-2);
+}
+var a = fibonacci(10);
+`;
+    const scanner = new Scanner(source);
+    scanner.scan();
+    const parser = new Parser(scanner.tokens);
+    parser.parse();
+    const interpreter = new Interpreter(parser.statements);
+    interpreter.interpret();
+
+    expect(
+      interpreter.environment.get(
+        new Token({ type: TokenType.IDENTIFIER, lexeme: 'a', line: 7 }),
+      ),
+    ).toStrictEqual(55);
   });
 });

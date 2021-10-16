@@ -1,3 +1,3 @@
 # Compiler for lox
 
-Follow by http://craftinginterpreters.com/contents.html
+Follow the guide of http://craftinginterpreters.com/contents.html

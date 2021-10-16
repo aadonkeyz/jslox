@@ -214,8 +214,15 @@ class Interpreter {
     const previous = this.environment;
     this.environment = newEnvironment;
 
-    for (let i = 0; i < statements.length; i++) {
-      this.execute(statements[i]);
+    try {
+      for (let i = 0; i < statements.length; i++) {
+        this.execute(statements[i]);
+      }
+    } catch (error) {
+      if (error instanceof LoxReturn) {
+        this.environment = previous;
+        throw error;
+      }
     }
 
     this.environment = previous;
