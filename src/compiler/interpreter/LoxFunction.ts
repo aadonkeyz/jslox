@@ -20,7 +20,7 @@ class LoxFunction {
     }
 
     try {
-      interpreter.executeBlock(this.declaration.statements, environment);
+      interpreter.visitBlockStatement(this.declaration.body, environment);
     } catch (error) {
       if (error instanceof LoxReturn) {
         return error.value;

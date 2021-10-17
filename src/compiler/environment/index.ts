@@ -1,5 +1,5 @@
-import { Token } from './scanner';
-import reportError from './util/reportError';
+import { Token } from '../scanner';
+import reportError from '../util/reportError';
 
 class Environment {
   values: Record<string, any>;

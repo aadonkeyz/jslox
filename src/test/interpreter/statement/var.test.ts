@@ -1,6 +1,7 @@
 import Scanner, { Token, TokenType } from '../../../compiler/scanner';
 import Parser from '../../../compiler/parser';
 import Interpreter from '../../../compiler/interpreter';
+import ScopeAnalyst from '../../../compiler/semantic/ScopeAnalyst';
 
 describe('var', () => {
   test('declare foo without value', () => {
@@ -11,7 +12,12 @@ var foo;
     scanner.scan();
     const parser = new Parser(scanner.tokens);
     parser.parse();
-    const interpreter = new Interpreter(parser.statements);
+    const scopeAnalyst = new ScopeAnalyst(parser.statements);
+    scopeAnalyst.analysis();
+    const interpreter = new Interpreter(
+      parser.statements,
+      scopeAnalyst.scopeRecord,
+    );
     interpreter.interpret();
     expect(
       interpreter.environment.get(
@@ -28,7 +34,12 @@ var foo = 1;
     scanner.scan();
     const parser = new Parser(scanner.tokens);
     parser.parse();
-    const interpreter = new Interpreter(parser.statements);
+    const scopeAnalyst = new ScopeAnalyst(parser.statements);
+    scopeAnalyst.analysis();
+    const interpreter = new Interpreter(
+      parser.statements,
+      scopeAnalyst.scopeRecord,
+    );
     interpreter.interpret();
     expect(
       interpreter.environment.get(

@@ -1,9 +1,12 @@
 import { BaseExpression } from './expression';
 import Interpreter from '../interpreter';
+import ScopeAnalysis from '../semantic/ScopeAnalyst';
 import { Token } from '../scanner';
 
+type Visitor = Interpreter | ScopeAnalysis;
+
 class BaseStatement {
-  accept(interpreter: Interpreter) {}
+  accept(visitor: Visitor) {}
 }
 
 class ExpressionStatement extends BaseStatement {
@@ -14,8 +17,8 @@ class ExpressionStatement extends BaseStatement {
     this.expression = expression;
   }
 
-  accept(interpreter: Interpreter): any {
-    return interpreter.visitExpressionStatement(this);
+  accept(visitor: Visitor): any {
+    return visitor.visitExpressionStatement(this);
   }
 }
 
@@ -35,8 +38,8 @@ class IfStatement extends BaseStatement {
     this.elseBranch = elseBranch;
   }
 
-  accept(interpreter: Interpreter): any {
-    return interpreter.visitIfStatement(this);
+  accept(visitor: Visitor): any {
+    return visitor.visitIfStatement(this);
   }
 }
 
@@ -48,8 +51,8 @@ class PrintStatement extends BaseStatement {
     this.expression = expression;
   }
 
-  accept(interpreter: Interpreter): any {
-    return interpreter.visitPrintStatement(this);
+  accept(visitor: Visitor): any {
+    return visitor.visitPrintStatement(this);
   }
 }
 
@@ -63,8 +66,8 @@ class WhileStatement extends BaseStatement {
     this.body = body;
   }
 
-  accept(interpreter: Interpreter): any {
-    return interpreter.visitWhileStatement(this);
+  accept(visitor: Visitor): any {
+    return visitor.visitWhileStatement(this);
   }
 }
 
@@ -87,8 +90,8 @@ class ForStatement extends BaseStatement {
     this.body = props.body;
   }
 
-  accept(interpreter: Interpreter): any {
-    return interpreter.visitForStatement(this);
+  accept(visitor: Visitor): any {
+    return visitor.visitForStatement(this);
   }
 }
 
@@ -102,8 +105,8 @@ class VarStatement extends BaseStatement {
     this.initializer = initializer;
   }
 
-  accept(interpreter: Interpreter): void {
-    return interpreter.visitVarStatement(this);
+  accept(visitor: Visitor): void {
+    return visitor.visitVarStatement(this);
   }
 }
 
@@ -115,25 +118,25 @@ class BlockStatement extends BaseStatement {
     this.statements = statements;
   }
 
-  accept(interpreter: Interpreter): void {
-    return interpreter.visitBlockStatement(this);
+  accept(visitor: Visitor): void {
+    return visitor.visitBlockStatement(this);
   }
 }
 
 class FunctionStatement extends BaseStatement {
   name: Token;
   params: Token[];
-  statements: BaseStatement[];
+  body: BlockStatement;
 
-  constructor(name: Token, params: Token[], statements: BaseStatement[]) {
+  constructor(name: Token, params: Token[], body: BlockStatement) {
     super();
     this.name = name;
     this.params = params;
-    this.statements = statements;
+    this.body = body;
   }
 
-  accept(interpreter: Interpreter): void {
-    return interpreter.visitFunctionStatement(this);
+  accept(visitor: Visitor): void {
+    return visitor.visitFunctionStatement(this);
   }
 }
 
@@ -147,8 +150,8 @@ class ReturnStatement extends BaseStatement {
     this.value = value;
   }
 
-  accept(interpreter: Interpreter): void {
-    return interpreter.visitReturnStatement(this);
+  accept(visitor: Visitor): void {
+    return visitor.visitReturnStatement(this);
   }
 }
 

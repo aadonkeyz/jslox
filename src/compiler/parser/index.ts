@@ -87,9 +87,9 @@ class Parser {
     this.consume(TokenType.RIGHT_PARENTHESE, 'Expect ")" after parameters.');
 
     this.consume(TokenType.LEFT_BRACE, `Expect "{" before ${kind} body.`);
-    const statements = this.block();
+    const body = new Statement.BlockStatement(this.block());
 
-    return new Statement.FunctionStatement(name, params, statements);
+    return new Statement.FunctionStatement(name, params, body);
   }
 
   varDecl(): Statement.BaseStatement {

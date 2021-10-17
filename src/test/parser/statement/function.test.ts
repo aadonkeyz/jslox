@@ -17,7 +17,9 @@ fun test() {
       new Statement.FunctionStatement(
         new Token({ type: TokenType.IDENTIFIER, lexeme: 'test', line: 2 }),
         [],
-        [new Statement.PrintStatement(new Expression.LiteralExpression(1))],
+        new Statement.BlockStatement([
+          new Statement.PrintStatement(new Expression.LiteralExpression(1)),
+        ]),
       ),
     );
   });
@@ -37,13 +39,13 @@ fun test(a) {
       new Statement.FunctionStatement(
         new Token({ type: TokenType.IDENTIFIER, lexeme: 'test', line: 2 }),
         [new Token({ type: TokenType.IDENTIFIER, lexeme: 'a', line: 2 })],
-        [
+        new Statement.BlockStatement([
           new Statement.PrintStatement(
             new Expression.VariableExpression(
               new Token({ type: TokenType.IDENTIFIER, lexeme: 'a', line: 3 }),
             ),
           ),
-        ],
+        ]),
       ),
     );
   });

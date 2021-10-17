@@ -1,6 +1,7 @@
 import Scanner, { Token, TokenType } from '../../../compiler/scanner';
 import Parser from '../../../compiler/parser';
 import Interpreter from '../../../compiler/interpreter';
+import ScopeAnalyst from '../../../compiler/semantic/ScopeAnalyst';
 
 describe('function', () => {
   test('no return', () => {
@@ -12,7 +13,12 @@ var a = test();
     scanner.scan();
     const parser = new Parser(scanner.tokens);
     parser.parse();
-    const interpreter = new Interpreter(parser.statements);
+    const scopeAnalyst = new ScopeAnalyst(parser.statements);
+    scopeAnalyst.analysis();
+    const interpreter = new Interpreter(
+      parser.statements,
+      scopeAnalyst.scopeRecord,
+    );
     interpreter.interpret();
 
     expect(
@@ -34,7 +40,12 @@ var b = test();
     scanner.scan();
     const parser = new Parser(scanner.tokens);
     parser.parse();
-    const interpreter = new Interpreter(parser.statements);
+    const scopeAnalyst = new ScopeAnalyst(parser.statements);
+    scopeAnalyst.analysis();
+    const interpreter = new Interpreter(
+      parser.statements,
+      scopeAnalyst.scopeRecord,
+    );
     interpreter.interpret();
 
     expect(
@@ -64,7 +75,12 @@ var b = counter();
     scanner.scan();
     const parser = new Parser(scanner.tokens);
     parser.parse();
-    const interpreter = new Interpreter(parser.statements);
+    const scopeAnalyst = new ScopeAnalyst(parser.statements);
+    scopeAnalyst.analysis();
+    const interpreter = new Interpreter(
+      parser.statements,
+      scopeAnalyst.scopeRecord,
+    );
     interpreter.interpret();
 
     expect(
@@ -93,7 +109,12 @@ var a = fibonacci(10);
     scanner.scan();
     const parser = new Parser(scanner.tokens);
     parser.parse();
-    const interpreter = new Interpreter(parser.statements);
+    const scopeAnalyst = new ScopeAnalyst(parser.statements);
+    scopeAnalyst.analysis();
+    const interpreter = new Interpreter(
+      parser.statements,
+      scopeAnalyst.scopeRecord,
+    );
     interpreter.interpret();
 
     expect(
@@ -101,5 +122,45 @@ var a = fibonacci(10);
         new Token({ type: TokenType.IDENTIFIER, lexeme: 'a', line: 7 }),
       ),
     ).toStrictEqual(55);
+  });
+
+  test('static lexical', () => {
+    const source = `
+var a = "global";
+var b;
+var c;
+{
+  fun showA() {
+    return a;
+  }
+
+  b = showA();
+  var a = "block";
+  c = showA();
+}
+`;
+    const scanner = new Scanner(source);
+    scanner.scan();
+    const parser = new Parser(scanner.tokens);
+    parser.parse();
+    const scopeAnalyst = new ScopeAnalyst(parser.statements);
+    scopeAnalyst.analysis();
+    const interpreter = new Interpreter(
+      parser.statements,
+      scopeAnalyst.scopeRecord,
+    );
+    interpreter.interpret();
+
+    expect(
+      interpreter.environment.get(
+        new Token({ type: TokenType.IDENTIFIER, lexeme: 'b', line: 3 }),
+      ),
+    ).toStrictEqual('global');
+
+    expect(
+      interpreter.environment.get(
+        new Token({ type: TokenType.IDENTIFIER, lexeme: 'c', line: 4 }),
+      ),
+    ).toStrictEqual('global');
   });
 });

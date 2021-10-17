@@ -1,6 +1,7 @@
 import Scanner, { Token, TokenType } from '../../../compiler/scanner';
 import Parser from '../../../compiler/parser';
 import Interpreter from '../../../compiler/interpreter';
+import ScopeAnalyst from '../../../compiler/semantic/ScopeAnalyst';
 
 describe('print', () => {
   test('print binary expression', () => {
@@ -9,7 +10,12 @@ describe('print', () => {
     scanner.scan();
     const parser = new Parser(scanner.tokens);
     parser.parse();
-    const interpreter = new Interpreter(parser.statements);
+    const scopeAnalyst = new ScopeAnalyst(parser.statements);
+    scopeAnalyst.analysis();
+    const interpreter = new Interpreter(
+      parser.statements,
+      scopeAnalyst.scopeRecord,
+    );
     interpreter.interpret();
     expect('should console -2.5').toStrictEqual('should console -2.5');
   });

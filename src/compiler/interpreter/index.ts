@@ -9,11 +9,16 @@ class Interpreter {
   global: Environment;
   environment: Environment;
   statements: Statement.BaseStatement[];
+  scopeRecord: Map<Expression.BaseExpression, number>;
 
-  constructor(statements: Statement.BaseStatement[]) {
+  constructor(
+    statements: Statement.BaseStatement[],
+    scopeRecord?: Map<Expression.BaseExpression, number>,
+  ) {
     this.global = new Environment();
     this.environment = this.global;
     this.statements = statements;
+    this.scopeRecord = scopeRecord || new Map();
   }
 
   interpret(): void {
@@ -75,8 +80,25 @@ class Interpreter {
     this.environment.define(node.name.lexeme, value);
   }
 
-  visitBlockStatement(node: Statement.BlockStatement): void {
-    this.executeBlock(node.statements, new Environment(this.environment));
+  visitBlockStatement(
+    node: Statement.BlockStatement,
+    newEnvironment?: Environment,
+  ): void {
+    const previous = this.environment;
+    this.environment = newEnvironment || new Environment(this.environment);
+
+    try {
+      for (let i = 0; i < node.statements.length; i++) {
+        this.execute(node.statements[i]);
+      }
+    } catch (error) {
+      if (error instanceof LoxReturn) {
+        this.environment = previous;
+        throw error;
+      }
+    }
+
+    this.environment = previous;
   }
 
   visitLiteralExpression(node: Expression.LiteralExpression): any {
@@ -168,12 +190,39 @@ class Interpreter {
 
   visitAssignmentExpression(node: Expression.AssignmentExpression): any {
     const value = this.evaluate(node.value);
-    this.environment.assign(node.name, value);
+
+    if (!this.scopeRecord.has(node)) {
+      this.global.assign(node.name, value);
+      return value;
+    }
+
+    let distance = this.scopeRecord.get(node)!;
+    let environment = this.environment;
+
+    while (distance > 0 && environment.enclosing) {
+      environment = environment.enclosing;
+      distance = distance - 1;
+    }
+
+    environment.assign(node.name, value);
+
     return value;
   }
 
   visitVariableExpression(node: Expression.VariableExpression): any {
-    return this.environment.get(node.name);
+    if (!this.scopeRecord.has(node)) {
+      return this.global.get(node.name);
+    }
+
+    let distance = this.scopeRecord.get(node)!;
+    let environment = this.environment;
+
+    while (distance > 0 && environment.enclosing) {
+      environment = environment.enclosing;
+      distance = distance - 1;
+    }
+
+    return environment.get(node.name);
   }
 
   visitCallExpression(node: Expression.CallExpression): any {
@@ -205,27 +254,6 @@ class Interpreter {
 
   execute(node: Statement.BaseStatement): void {
     node.accept(this);
-  }
-
-  executeBlock(
-    statements: Statement.BaseStatement[],
-    newEnvironment: Environment,
-  ): void {
-    const previous = this.environment;
-    this.environment = newEnvironment;
-
-    try {
-      for (let i = 0; i < statements.length; i++) {
-        this.execute(statements[i]);
-      }
-    } catch (error) {
-      if (error instanceof LoxReturn) {
-        this.environment = previous;
-        throw error;
-      }
-    }
-
-    this.environment = previous;
   }
 
   checkNumberOperand(token: Token, operand: any) {

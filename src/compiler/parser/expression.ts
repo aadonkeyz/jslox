@@ -1,8 +1,11 @@
 import { Token } from '../scanner';
 import Interpreter from '../interpreter';
+import ScopeAnalysis from '../semantic/ScopeAnalyst';
+
+type Visitor = Interpreter | ScopeAnalysis;
 
 class BaseExpression {
-  accept(interpreter: Interpreter) {}
+  accept(visitor: Visitor) {}
 }
 
 class BinaryExpression extends BaseExpression {
@@ -17,8 +20,8 @@ class BinaryExpression extends BaseExpression {
     this.right = right;
   }
 
-  accept(interpreter: Interpreter): any {
-    return interpreter.visitBinaryExpression(this);
+  accept(visitor: Visitor): any {
+    return visitor.visitBinaryExpression(this);
   }
 }
 
@@ -34,8 +37,8 @@ class LogicalExpression extends BaseExpression {
     this.right = right;
   }
 
-  accept(interpreter: Interpreter): any {
-    return interpreter.visitLogicalExpression(this);
+  accept(visitor: Visitor): any {
+    return visitor.visitLogicalExpression(this);
   }
 }
 
@@ -47,8 +50,8 @@ class GroupingExpression extends BaseExpression {
     this.expression = BaseExpression;
   }
 
-  accept(interpreter: Interpreter): any {
-    return interpreter.visitGroupingExpression(this);
+  accept(visitor: Visitor): any {
+    return visitor.visitGroupingExpression(this);
   }
 }
 
@@ -60,8 +63,8 @@ class LiteralExpression extends BaseExpression {
     this.value = value;
   }
 
-  accept(interpreter: Interpreter): any {
-    return interpreter.visitLiteralExpression(this);
+  accept(visitor: Visitor): any {
+    return visitor.visitLiteralExpression(this);
   }
 }
 
@@ -75,8 +78,8 @@ class UnaryExpression extends BaseExpression {
     this.expression = expression;
   }
 
-  accept(interpreter: Interpreter): any {
-    return interpreter.visitUnaryExpression(this);
+  accept(visitor: Visitor): any {
+    return visitor.visitUnaryExpression(this);
   }
 }
 
@@ -88,8 +91,8 @@ class VariableExpression extends BaseExpression {
     this.name = name;
   }
 
-  accept(interpreter: Interpreter): any {
-    return interpreter.visitVariableExpression(this);
+  accept(visitor: Visitor): any {
+    return visitor.visitVariableExpression(this);
   }
 }
 
@@ -103,8 +106,8 @@ class AssignmentExpression extends BaseExpression {
     this.value = value;
   }
 
-  accept(interpreter: Interpreter): any {
-    return interpreter.visitAssignmentExpression(this);
+  accept(visitor: Visitor): any {
+    return visitor.visitAssignmentExpression(this);
   }
 }
 
@@ -124,8 +127,8 @@ class CallExpression extends BaseExpression {
     this.endParenthese = endParenthese;
   }
 
-  accept(interpreter: Interpreter): any {
-    return interpreter.visitCallExpression(this);
+  accept(visitor: Visitor): any {
+    return visitor.visitCallExpression(this);
   }
 }
 
