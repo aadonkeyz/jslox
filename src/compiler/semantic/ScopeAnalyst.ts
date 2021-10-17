@@ -1,16 +1,22 @@
 import { Expression, Statement } from '../parser';
 import { Token } from '../scanner';
 
+enum FunctionType {
+  NONE,
+  FUNCTION,
+}
 class ScopeAnalyst {
   statements: Statement.BaseStatement[];
   scopes: Record<string, boolean>[];
   scopeRecord: Map<Expression.BaseExpression, number>;
+  functionType: FunctionType;
   errors: { line: number; where: string; message: string }[];
 
   constructor(statements: Statement.BaseStatement[]) {
     this.statements = statements;
     this.scopes = [];
     this.scopeRecord = new Map();
+    this.functionType = FunctionType.NONE;
     this.errors = [];
   }
 
@@ -100,6 +106,9 @@ class ScopeAnalyst {
     this.declare(node.name);
     this.define(node.name);
 
+    const previousFunctionType = this.functionType;
+    this.functionType = FunctionType.FUNCTION;
+
     this.scopes.push({});
 
     node.params.forEach((item) => {
@@ -109,9 +118,17 @@ class ScopeAnalyst {
     this.evaluateList(node.body.statements);
 
     this.scopes.pop();
+    this.functionType = previousFunctionType;
   }
 
   visitReturnStatement(node: Statement.ReturnStatement): void {
+    if (this.functionType === FunctionType.NONE) {
+      this.errors.push({
+        line: node.keyword.line,
+        where: node.keyword.lexeme,
+        message: "Can't return from top-level code.",
+      });
+    }
     node.value && this.evaluateItem(node.value);
   }
 

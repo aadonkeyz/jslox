@@ -4,6 +4,25 @@ import ScopeAnalyst from '../../compiler/semantic/ScopeAnalyst';
 import { VariableExpression } from '../../compiler/parser/expression';
 
 describe('ScopeAnalyst', () => {
+  test('top-level return', () => {
+    const source = `
+return 1;
+`;
+    const scanner = new Scanner(source);
+    scanner.scan();
+    const parser = new Parser(scanner.tokens);
+    parser.parse();
+    const scopeAnalyst = new ScopeAnalyst(parser.statements);
+    scopeAnalyst.analysis();
+
+    expect(scopeAnalyst.errors.length).toStrictEqual(1);
+    expect(scopeAnalyst.errors[0]).toStrictEqual({
+      line: 2,
+      where: 'return',
+      message: "Can't return from top-level code.",
+    });
+  });
+
   test('scopeRecord', () => {
     const source = `
 var foo = 4;
