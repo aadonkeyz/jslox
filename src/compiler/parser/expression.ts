@@ -132,6 +132,51 @@ class CallExpression extends BaseExpression {
   }
 }
 
+class GetExpression extends BaseExpression {
+  object: BaseExpression;
+  name: Token;
+
+  constructor(object: BaseExpression, name: Token) {
+    super();
+    this.object = object;
+    this.name = name;
+  }
+
+  accept(visitor: Visitor): any {
+    return visitor.visitGetExpression(this);
+  }
+}
+
+class SetExpression extends BaseExpression {
+  object: BaseExpression;
+  name: Token;
+  value: BaseExpression;
+
+  constructor(object: BaseExpression, name: Token, value: BaseExpression) {
+    super();
+    this.object = object;
+    this.name = name;
+    this.value = value;
+  }
+
+  accept(visitor: Visitor): any {
+    return visitor.visitSetExpression(this);
+  }
+}
+
+class ThisExpression extends BaseExpression {
+  keyword: Token;
+
+  constructor(keyword: Token) {
+    super();
+    this.keyword = keyword;
+  }
+
+  accept(visitor: Visitor): any {
+    return visitor.visitThisExpression(this);
+  }
+}
+
 export {
   BaseExpression,
   BinaryExpression,
@@ -142,4 +187,7 @@ export {
   VariableExpression,
   AssignmentExpression,
   CallExpression,
+  GetExpression,
+  SetExpression,
+  ThisExpression,
 };

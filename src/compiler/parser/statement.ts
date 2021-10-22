@@ -155,6 +155,21 @@ class ReturnStatement extends BaseStatement {
   }
 }
 
+class ClassStatement extends BaseStatement {
+  name: Token;
+  methods: FunctionStatement[];
+
+  constructor(name: Token, methods: FunctionStatement[]) {
+    super();
+    this.name = name;
+    this.methods = methods;
+  }
+
+  accept(visitor: Visitor): void {
+    return visitor.visitClassStatement(this);
+  }
+}
+
 export {
   BaseStatement,
   ExpressionStatement,
@@ -166,4 +181,5 @@ export {
   BlockStatement,
   FunctionStatement,
   ReturnStatement,
+  ClassStatement,
 };

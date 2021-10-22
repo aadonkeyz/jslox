@@ -4,12 +4,21 @@ import { Token } from '../scanner';
 enum FunctionType {
   NONE,
   FUNCTION,
+  METHOD,
+  INITIALIZER,
 }
+
+enum ClassType {
+  NONE,
+  CLASS,
+}
+
 class ScopeAnalyst {
   statements: Statement.BaseStatement[];
   scopes: Record<string, boolean>[];
   scopeRecord: Map<Expression.BaseExpression, number>;
   functionType: FunctionType;
+  classType: ClassType;
   errors: { line: number; where: string; message: string }[];
 
   constructor(statements: Statement.BaseStatement[]) {
@@ -17,6 +26,7 @@ class ScopeAnalyst {
     this.scopes = [];
     this.scopeRecord = new Map();
     this.functionType = FunctionType.NONE;
+    this.classType = ClassType.NONE;
     this.errors = [];
   }
 
@@ -36,6 +46,25 @@ class ScopeAnalyst {
     node: Statement.BaseStatement | Expression.BaseExpression,
   ): void {
     node.accept(this);
+  }
+
+  evaluateFunction(
+    node: Statement.FunctionStatement,
+    type: FunctionType,
+  ): void {
+    const previousFunctionType = this.functionType;
+    this.functionType = type;
+
+    this.scopes.push({});
+
+    node.params.forEach((item) => {
+      this.declare(item);
+      this.define(item);
+    });
+    this.evaluateList(node.body.statements);
+
+    this.scopes.pop();
+    this.functionType = previousFunctionType;
   }
 
   declare(name: Token): void {
@@ -106,19 +135,7 @@ class ScopeAnalyst {
     this.declare(node.name);
     this.define(node.name);
 
-    const previousFunctionType = this.functionType;
-    this.functionType = FunctionType.FUNCTION;
-
-    this.scopes.push({});
-
-    node.params.forEach((item) => {
-      this.declare(item);
-      this.define(item);
-    });
-    this.evaluateList(node.body.statements);
-
-    this.scopes.pop();
-    this.functionType = previousFunctionType;
+    this.evaluateFunction(node, FunctionType.FUNCTION);
   }
 
   visitReturnStatement(node: Statement.ReturnStatement): void {
@@ -129,7 +146,42 @@ class ScopeAnalyst {
         message: "Can't return from top-level code.",
       });
     }
-    node.value && this.evaluateItem(node.value);
+
+    if (node.value) {
+      if (this.functionType === FunctionType.INITIALIZER) {
+        this.errors.push({
+          line: node.keyword.line,
+          where: node.keyword.lexeme,
+          message: "Can't use return a value from an initializer.",
+        });
+      }
+
+      this.evaluateItem(node.value);
+    }
+  }
+
+  visitClassStatement(node: Statement.ClassStatement): void {
+    const previousClassType = this.classType;
+    this.classType = ClassType.CLASS;
+
+    this.declare(node.name);
+
+    this.scopes.push({ this: true });
+
+    node.methods.forEach((item) => {
+      this.evaluateFunction(
+        item,
+        item.name.lexeme === 'init'
+          ? FunctionType.INITIALIZER
+          : FunctionType.METHOD,
+      );
+    });
+
+    this.scopes.pop();
+
+    this.define(node.name);
+
+    this.classType = previousClassType;
   }
 
   visitBinaryExpression(node: Expression.BinaryExpression): void {
@@ -175,6 +227,26 @@ class ScopeAnalyst {
   visitCallExpression(node: Expression.CallExpression): void {
     this.evaluateItem(node.callee);
     this.evaluateList(node.args);
+  }
+
+  visitGetExpression(node: Expression.GetExpression): void {
+    this.evaluateItem(node.object);
+  }
+
+  visitSetExpression(node: Expression.SetExpression): void {
+    this.evaluateItem(node.value);
+    this.evaluateItem(node.object);
+  }
+
+  visitThisExpression(node: Expression.ThisExpression): void {
+    if (this.classType === ClassType.NONE) {
+      this.errors.push({
+        line: node.keyword.line,
+        where: node.keyword.lexeme,
+        message: "Can't use 'this' outside of a class.",
+      });
+    }
+    this.calculate(node, node.keyword);
   }
 }
 

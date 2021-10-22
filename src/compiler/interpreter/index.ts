@@ -2,7 +2,9 @@ import { Token, TokenType } from '../scanner';
 import { Expression, Statement } from '../parser';
 import Environment from '../environment';
 import reportError from '../util/reportError';
+import LoxClass from './LoxClass';
 import LoxFunction from './LoxFunction';
+import LoxInstance from './LoxInstance';
 import LoxReturn from './LoxReturn';
 
 class Interpreter {
@@ -27,9 +29,48 @@ class Interpreter {
     }
   }
 
+  evaluate(node: Expression.BaseExpression): any {
+    return node.accept(this);
+  }
+
+  execute(node: Statement.BaseStatement): void {
+    node.accept(this);
+  }
+
+  checkNumberOperand(token: Token, operand: any) {
+    if (typeof operand !== 'number') {
+      reportError(token.line, token.lexeme, 'Operand must be a number');
+    }
+  }
+
+  checkNumberOperands(token: Token, left: any, right: any) {
+    if (typeof left !== 'number' || typeof right !== 'number') {
+      reportError(token.line, token.lexeme, 'Operands must be numbers');
+    }
+  }
+
   visitFunctionStatement(node: Statement.FunctionStatement): void {
-    const fun = new LoxFunction(node, this.environment);
-    this.environment.define(node.name.lexeme, fun);
+    const loxFunction = new LoxFunction(node, this.environment);
+    this.environment.define(node.name.lexeme, loxFunction);
+  }
+
+  visitClassStatement(node: Statement.ClassStatement): void {
+    this.environment.define(node.name.lexeme, null);
+
+    const methods = node.methods.reduce((pre, cur) => {
+      const method = new LoxFunction(
+        cur,
+        this.environment,
+        cur.name.lexeme === 'init',
+      );
+      return {
+        ...pre,
+        [cur.name.lexeme]: method,
+      };
+    }, {});
+
+    const loxClass = new LoxClass(node.name.lexeme, methods);
+    this.environment.assign(node.name, loxClass);
   }
 
   visitReturnStatement(node: Statement.ReturnStatement): void {
@@ -196,13 +237,8 @@ class Interpreter {
       return value;
     }
 
-    let distance = this.scopeRecord.get(node)!;
-    let environment = this.environment;
-
-    while (distance > 0 && environment.enclosing) {
-      environment = environment.enclosing;
-      distance = distance - 1;
-    }
+    const distance = this.scopeRecord.get(node)!;
+    const environment = this.environment.getEnvironmentByDistance(distance);
 
     environment.assign(node.name, value);
 
@@ -214,13 +250,8 @@ class Interpreter {
       return this.global.get(node.name);
     }
 
-    let distance = this.scopeRecord.get(node)!;
-    let environment = this.environment;
-
-    while (distance > 0 && environment.enclosing) {
-      environment = environment.enclosing;
-      distance = distance - 1;
-    }
+    const distance = this.scopeRecord.get(node)!;
+    const environment = this.environment.getEnvironmentByDistance(distance);
 
     return environment.get(node.name);
   }
@@ -237,35 +268,57 @@ class Interpreter {
       );
     }
 
-    if (args.length !== callee.declaration.params.length) {
+    if (args.length !== callee.arity()) {
       reportError(
         node.endParenthese.line,
         node.endParenthese.lexeme,
-        `Expect ${callee.declaration.params.length} arguments but got ${args.length}.`,
+        `Expect ${callee.arity()} arguments but got ${args.length}.`,
       );
     }
 
     return callee.call(this, args);
   }
 
-  evaluate(node: Expression.BaseExpression): any {
-    return node.accept(this);
-  }
-
-  execute(node: Statement.BaseStatement): void {
-    node.accept(this);
-  }
-
-  checkNumberOperand(token: Token, operand: any) {
-    if (typeof operand !== 'number') {
-      reportError(token.line, token.lexeme, 'Operand must be a number');
+  visitGetExpression(node: Expression.GetExpression): any {
+    const obj = this.evaluate(node.object);
+    if (obj instanceof LoxInstance) {
+      return obj.get(node.name);
     }
+
+    reportError(
+      node.name.line,
+      node.name.lexeme,
+      'Only instances have properties.',
+    );
   }
 
-  checkNumberOperands(token: Token, left: any, right: any) {
-    if (typeof left !== 'number' || typeof right !== 'number') {
-      reportError(token.line, token.lexeme, 'Operands must be numbers');
+  visitSetExpression(node: Expression.SetExpression): any {
+    const obj = this.evaluate(node.object);
+
+    if (obj instanceof LoxInstance) {
+      const value = this.evaluate(node.value);
+
+      obj.set(node.name, value);
+
+      return value;
     }
+
+    reportError(
+      node.name.line,
+      node.name.lexeme,
+      'Only instances have properties.',
+    );
+  }
+
+  visitThisExpression(node: Expression.ThisExpression): any {
+    if (!this.scopeRecord.has(node)) {
+      return this.global.get(node.keyword);
+    }
+
+    const distance = this.scopeRecord.get(node)!;
+    const environment = this.environment.getEnvironmentByDistance(distance);
+
+    return environment.get(node.keyword);
   }
 }
 

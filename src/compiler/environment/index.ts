@@ -14,30 +14,41 @@ class Environment {
     this.values[name] = value;
   }
 
-  get(name: Token): any {
-    if (name.lexeme in this.values) {
-      return this.values[name.lexeme];
+  get(nameToken: Token): any {
+    if (nameToken.lexeme in this.values) {
+      return this.values[nameToken.lexeme];
     }
 
     if (this.enclosing) {
-      return this.enclosing.get(name);
+      return this.enclosing.get(nameToken);
     }
 
-    reportError(name.line, name.lexeme, 'Undefined variable');
+    reportError(nameToken.line, nameToken.lexeme, 'Undefined variable');
   }
 
-  assign(name: Token, value: any): void {
-    if (name.lexeme in this.values) {
-      this.values[name.lexeme] = value;
+  getEnvironmentByDistance(distance: number): any {
+    let environment: Environment = this;
+
+    while (distance > 0 && environment.enclosing) {
+      environment = environment.enclosing;
+      distance = distance - 1;
+    }
+
+    return environment;
+  }
+
+  assign(nameToken: Token, value: any): void {
+    if (nameToken.lexeme in this.values) {
+      this.values[nameToken.lexeme] = value;
       return;
     }
 
     if (this.enclosing) {
-      this.enclosing.assign(name, value);
+      this.enclosing.assign(nameToken, value);
       return;
     }
 
-    reportError(name.line, name.lexeme, 'Undefined variable');
+    reportError(nameToken.line, nameToken.lexeme, 'Undefined variable');
   }
 }
 
