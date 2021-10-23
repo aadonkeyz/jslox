@@ -67,17 +67,18 @@ export const KEYWORDS_MAP = {
   [TokenType.WHILE]: TokenType.WHILE,
 };
 
+export type LiteralValue = number | string | boolean | null;
 class Token {
   type: TokenType;
   lexeme: string;
   line: number;
-  literal?: any;
+  literal?: LiteralValue;
 
   constructor(props: {
     type: TokenType;
     lexeme: string;
     line: number;
-    literal?: any;
+    literal?: LiteralValue;
   }) {
     this.type = props.type;
     this.lexeme = props.lexeme;

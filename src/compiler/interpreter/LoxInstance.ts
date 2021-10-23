@@ -1,17 +1,18 @@
 import { Token } from '../scanner';
-import reportError from '../util/reportError';
+import { produceError } from '../util';
+import { EnvironmentValue } from '../environment';
 import LoxClass from './LoxClass';
 
 class LoxInstance {
   belongClass: LoxClass;
-  fields: Record<string, any>;
+  fields: Record<string, EnvironmentValue>;
 
   constructor(belongClass: LoxClass) {
     this.belongClass = belongClass;
     this.fields = {};
   }
 
-  get(name: Token): any {
+  get(name: Token): EnvironmentValue {
     if (name.lexeme in this.fields) {
       return this.fields[name.lexeme];
     }
@@ -20,10 +21,14 @@ class LoxInstance {
       return this.belongClass.methods[name.lexeme].bind(this);
     }
 
-    reportError(name.line, name.lexeme, `Undefined property "${name.lexeme}".`);
+    throw produceError(
+      name.line,
+      name.lexeme,
+      `Undefined property "${name.lexeme}".`,
+    );
   }
 
-  set(name: Token, value: any): any {
+  set(name: Token, value: EnvironmentValue): void {
     this.fields[name.lexeme] = value;
   }
 }

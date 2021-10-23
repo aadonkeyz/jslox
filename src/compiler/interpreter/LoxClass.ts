@@ -1,3 +1,4 @@
+import { EnvironmentValue } from '../environment';
 import Interpreter from '.';
 import LoxFunction from './LoxFunction';
 import LoxInstance from './LoxInstance';
@@ -19,11 +20,11 @@ class LoxClass {
     return 0;
   }
 
-  call(interpreter: Interpreter, args: any[]): any {
+  call(interpreter: Interpreter, args: EnvironmentValue[]): LoxInstance {
     const instance = new LoxInstance(this);
-    let initializer = this.methods.init;
+    const initializer = this.methods.init;
     if (initializer) {
-      initializer = initializer.bind(instance).call(interpreter, args);
+      initializer.bind(instance).call(interpreter, args);
     }
     return instance;
   }

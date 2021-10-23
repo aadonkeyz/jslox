@@ -48,7 +48,7 @@ class Parser {
     this.errors = [];
   }
 
-  parse(): void {
+  parse() {
     while (!this.isAtEnd()) {
       const statement = this.declaration();
       if (statement) {

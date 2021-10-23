@@ -52,6 +52,20 @@ describe('primary', () => {
     expect(root).toStrictEqual(new Expression.LiteralExpression(null));
   });
 
+  test('this', () => {
+    const source = 'this';
+    const scanner = new Scanner(source);
+    scanner.scan();
+    const parser = new Parser(scanner.tokens);
+    const root = parser.expression();
+
+    expect(root).toStrictEqual(
+      new Expression.ThisExpression(
+        new Token({ type: TokenType.THIS, lexeme: 'this', line: 1 }),
+      ),
+    );
+  });
+
   test('identifier', () => {
     const source = 'foo';
     const scanner = new Scanner(source);

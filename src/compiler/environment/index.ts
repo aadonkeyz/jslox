@@ -1,8 +1,14 @@
-import { Token } from '../scanner';
-import reportError from '../util/reportError';
+import { Token, LiteralValue } from '../scanner';
+import { produceError } from '../util';
+import { LoxClass, LoxFunction, LoxInstance } from '../interpreter';
 
+export type EnvironmentValue =
+  | LoxClass
+  | LoxFunction
+  | LoxInstance
+  | LiteralValue;
 class Environment {
-  values: Record<string, any>;
+  values: Record<string, EnvironmentValue>;
   enclosing?: Environment;
 
   constructor(enclosing?: Environment) {
@@ -10,11 +16,11 @@ class Environment {
     this.enclosing = enclosing;
   }
 
-  define(name: string, value: any): void {
+  define(name: string, value: EnvironmentValue): void {
     this.values[name] = value;
   }
 
-  get(nameToken: Token): any {
+  get(nameToken: Token): EnvironmentValue {
     if (nameToken.lexeme in this.values) {
       return this.values[nameToken.lexeme];
     }
@@ -23,10 +29,10 @@ class Environment {
       return this.enclosing.get(nameToken);
     }
 
-    reportError(nameToken.line, nameToken.lexeme, 'Undefined variable');
+    throw produceError(nameToken.line, nameToken.lexeme, 'Undefined variable');
   }
 
-  getEnvironmentByDistance(distance: number): any {
+  getEnvironmentByDistance(distance: number): Environment {
     let environment: Environment = this;
 
     while (distance > 0 && environment.enclosing) {
@@ -37,7 +43,7 @@ class Environment {
     return environment;
   }
 
-  assign(nameToken: Token, value: any): void {
+  assign(nameToken: Token, value: EnvironmentValue): void {
     if (nameToken.lexeme in this.values) {
       this.values[nameToken.lexeme] = value;
       return;
@@ -48,7 +54,7 @@ class Environment {
       return;
     }
 
-    reportError(nameToken.line, nameToken.lexeme, 'Undefined variable');
+    throw produceError(nameToken.line, nameToken.lexeme, 'Undefined variable');
   }
 }
 

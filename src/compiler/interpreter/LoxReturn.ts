@@ -1,7 +1,9 @@
-class LoxReturn {
-  value: any;
+import { EnvironmentValue } from '../environment';
 
-  constructor(value: any) {
+class LoxReturn {
+  value: EnvironmentValue;
+
+  constructor(value: EnvironmentValue) {
     this.value = value;
   }
 }

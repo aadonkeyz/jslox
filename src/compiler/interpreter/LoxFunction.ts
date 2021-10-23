@@ -1,5 +1,5 @@
 import { Statement } from '../parser';
-import Environment from '../environment';
+import Environment, { EnvironmentValue } from '../environment';
 import Interpreter from '.';
 import LoxReturn from './LoxReturn';
 import LoxInstance from './LoxInstance';
@@ -23,7 +23,7 @@ class LoxFunction {
     return this.declaration.params.length;
   }
 
-  call(interpreter: Interpreter, args: any[]): any {
+  call(interpreter: Interpreter, args: EnvironmentValue[]): EnvironmentValue {
     const environment = new Environment(this.closure);
 
     for (let i = 0; i < this.declaration.params.length; i++) {

@@ -1,11 +1,11 @@
-import { Token } from '../scanner';
+import { Token, LiteralValue } from '../scanner';
 import Interpreter from '../interpreter';
-import ScopeAnalysis from '../semantic/ScopeAnalyst';
+import { ScopeAnalyst } from '../semantic';
 
-type Visitor = Interpreter | ScopeAnalysis;
+type Visitor = Interpreter | ScopeAnalyst;
 
 class BaseExpression {
-  accept(visitor: Visitor) {}
+  accept(visitor: Visitor): any {}
 }
 
 class BinaryExpression extends BaseExpression {
@@ -20,7 +20,7 @@ class BinaryExpression extends BaseExpression {
     this.right = right;
   }
 
-  accept(visitor: Visitor): any {
+  accept(visitor: Visitor) {
     return visitor.visitBinaryExpression(this);
   }
 }
@@ -37,7 +37,7 @@ class LogicalExpression extends BaseExpression {
     this.right = right;
   }
 
-  accept(visitor: Visitor): any {
+  accept(visitor: Visitor) {
     return visitor.visitLogicalExpression(this);
   }
 }
@@ -50,20 +50,20 @@ class GroupingExpression extends BaseExpression {
     this.expression = BaseExpression;
   }
 
-  accept(visitor: Visitor): any {
+  accept(visitor: Visitor) {
     return visitor.visitGroupingExpression(this);
   }
 }
 
 class LiteralExpression extends BaseExpression {
-  value: any;
+  value: LiteralValue;
 
-  constructor(value: any) {
+  constructor(value: LiteralValue) {
     super();
     this.value = value;
   }
 
-  accept(visitor: Visitor): any {
+  accept(visitor: Visitor) {
     return visitor.visitLiteralExpression(this);
   }
 }
@@ -78,7 +78,7 @@ class UnaryExpression extends BaseExpression {
     this.expression = expression;
   }
 
-  accept(visitor: Visitor): any {
+  accept(visitor: Visitor) {
     return visitor.visitUnaryExpression(this);
   }
 }
@@ -91,7 +91,7 @@ class VariableExpression extends BaseExpression {
     this.name = name;
   }
 
-  accept(visitor: Visitor): any {
+  accept(visitor: Visitor) {
     return visitor.visitVariableExpression(this);
   }
 }
@@ -106,7 +106,7 @@ class AssignmentExpression extends BaseExpression {
     this.value = value;
   }
 
-  accept(visitor: Visitor): any {
+  accept(visitor: Visitor) {
     return visitor.visitAssignmentExpression(this);
   }
 }
@@ -127,7 +127,7 @@ class CallExpression extends BaseExpression {
     this.endParenthese = endParenthese;
   }
 
-  accept(visitor: Visitor): any {
+  accept(visitor: Visitor) {
     return visitor.visitCallExpression(this);
   }
 }
@@ -142,7 +142,7 @@ class GetExpression extends BaseExpression {
     this.name = name;
   }
 
-  accept(visitor: Visitor): any {
+  accept(visitor: Visitor) {
     return visitor.visitGetExpression(this);
   }
 }
@@ -159,7 +159,7 @@ class SetExpression extends BaseExpression {
     this.value = value;
   }
 
-  accept(visitor: Visitor): any {
+  accept(visitor: Visitor) {
     return visitor.visitSetExpression(this);
   }
 }
@@ -172,7 +172,7 @@ class ThisExpression extends BaseExpression {
     this.keyword = keyword;
   }
 
-  accept(visitor: Visitor): any {
+  accept(visitor: Visitor) {
     return visitor.visitThisExpression(this);
   }
 }

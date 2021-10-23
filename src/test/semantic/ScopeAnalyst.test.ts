@@ -119,4 +119,48 @@ var bar = fn1(1,2);
     );
     expect(list[6].number).toStrictEqual(1);
   });
+
+  test('return value in init method', () => {
+    const source = `
+class Foo {
+  init() {
+    return 1;
+  }
+}
+`;
+    const scanner = new Scanner(source);
+    scanner.scan();
+    const parser = new Parser(scanner.tokens);
+    parser.parse();
+    const scopeAnalyst = new ScopeAnalyst(parser.statements);
+    scopeAnalyst.analysis();
+
+    expect(scopeAnalyst.errors.length).toStrictEqual(1);
+    expect(scopeAnalyst.errors[0]).toStrictEqual({
+      line: 4,
+      where: 'return',
+      message: "Can't use return a value from an initializer.",
+    });
+  });
+
+  test('use this outside method', () => {
+    const source = `
+fun foo() {
+  print this;
+}
+`;
+    const scanner = new Scanner(source);
+    scanner.scan();
+    const parser = new Parser(scanner.tokens);
+    parser.parse();
+    const scopeAnalyst = new ScopeAnalyst(parser.statements);
+    scopeAnalyst.analysis();
+
+    expect(scopeAnalyst.errors.length).toStrictEqual(1);
+    expect(scopeAnalyst.errors[0]).toStrictEqual({
+      line: 3,
+      where: 'this',
+      message: "Can't use 'this' outside of a class.",
+    });
+  });
 });

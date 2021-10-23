@@ -1,7 +1,7 @@
-import { Token, TokenType } from '../scanner';
+import { Token, TokenType, LiteralValue } from '../scanner';
 import { Expression, Statement } from '../parser';
-import Environment from '../environment';
-import reportError from '../util/reportError';
+import Environment, { EnvironmentValue } from '../environment';
+import { produceError } from '../util';
 import LoxClass from './LoxClass';
 import LoxFunction from './LoxFunction';
 import LoxInstance from './LoxInstance';
@@ -29,24 +29,12 @@ class Interpreter {
     }
   }
 
-  evaluate(node: Expression.BaseExpression): any {
+  evaluate(node: Expression.BaseExpression): EnvironmentValue {
     return node.accept(this);
   }
 
   execute(node: Statement.BaseStatement): void {
     node.accept(this);
-  }
-
-  checkNumberOperand(token: Token, operand: any) {
-    if (typeof operand !== 'number') {
-      reportError(token.line, token.lexeme, 'Operand must be a number');
-    }
-  }
-
-  checkNumberOperands(token: Token, left: any, right: any) {
-    if (typeof left !== 'number' || typeof right !== 'number') {
-      reportError(token.line, token.lexeme, 'Operands must be numbers');
-    }
   }
 
   visitFunctionStatement(node: Statement.FunctionStatement): void {
@@ -114,9 +102,7 @@ class Interpreter {
   }
 
   visitVarStatement(node: Statement.VarStatement): void {
-    const value = node.initializer
-      ? this.evaluate(node.initializer)
-      : undefined;
+    const value = node.initializer ? this.evaluate(node.initializer) : null;
 
     this.environment.define(node.name.lexeme, value);
   }
@@ -142,28 +128,44 @@ class Interpreter {
     this.environment = previous;
   }
 
-  visitLiteralExpression(node: Expression.LiteralExpression): any {
+  visitLiteralExpression(node: Expression.LiteralExpression): LiteralValue {
     return node.value;
   }
 
-  visitGroupingExpression(node: Expression.GroupingExpression): any {
+  visitGroupingExpression(
+    node: Expression.GroupingExpression,
+  ): EnvironmentValue {
     return this.evaluate(node.expression);
   }
 
-  visitUnaryExpression(node: Expression.UnaryExpression): any {
+  visitUnaryExpression(node: Expression.UnaryExpression): EnvironmentValue {
     const right = this.evaluate(node.expression);
 
     if (node.operator.type === TokenType.MINUS) {
-      this.checkNumberOperand(node.operator, right);
+      if (typeof right !== 'number') {
+        throw produceError(
+          node.operator.line,
+          node.operator.lexeme,
+          'Operand must be a number',
+        );
+      }
       return -right;
     }
 
     if (node.operator.type === TokenType.BANG) {
       return !right;
     }
+
+    throw produceError(
+      node.operator.line,
+      node.operator.lexeme,
+      'Should not happen.',
+    );
   }
 
-  visitBinaryExpression(node: Expression.BinaryExpression): any {
+  visitBinaryExpression(
+    node: Expression.BinaryExpression,
+  ): number | string | boolean {
     const left = this.evaluate(node.left);
     const right = this.evaluate(node.right);
 
@@ -177,41 +179,61 @@ class Interpreter {
           return left + right;
         }
 
-        reportError(
+        throw produceError(
           node.operator.line,
           node.operator.lexeme,
           'Operands must be two numbers or two strings',
         );
-        break;
       case TokenType.MINUS:
-        this.checkNumberOperands(node.operator, left, right);
-        return left - right;
       case TokenType.SLASH:
-        this.checkNumberOperands(node.operator, left, right);
-        return left / right;
       case TokenType.STAR:
-        this.checkNumberOperands(node.operator, left, right);
-        return left * right;
       case TokenType.GREATER:
-        this.checkNumberOperands(node.operator, left, right);
-        return left > right;
       case TokenType.GREATER_EQUAL:
-        this.checkNumberOperands(node.operator, left, right);
-        return left >= right;
       case TokenType.LESS:
-        this.checkNumberOperands(node.operator, left, right);
-        return left < right;
       case TokenType.LESS_EQUAL:
-        this.checkNumberOperands(node.operator, left, right);
-        return left <= right;
+        return this.numberBinaryCalculate(node.operator, left, right);
       case TokenType.BANG_EQUAL:
         return left !== right;
       case TokenType.EQUAL_EQUAL:
         return left === right;
+      default:
+        throw produceError(
+          node.operator.line,
+          node.operator.lexeme,
+          'Should not happen.',
+        );
     }
   }
 
-  visitLogicalExpression(node: Expression.LogicalExpression): any {
+  numberBinaryCalculate(
+    token: Token,
+    left: EnvironmentValue,
+    right: EnvironmentValue,
+  ): number | boolean {
+    if (typeof left !== 'number' || typeof right !== 'number') {
+      throw produceError(token.line, token.lexeme, 'Operands must be numbers');
+    }
+    switch (token.type) {
+      case TokenType.MINUS:
+        return left - right;
+      case TokenType.SLASH:
+        return left / right;
+      case TokenType.STAR:
+        return left * right;
+      case TokenType.GREATER:
+        return left > right;
+      case TokenType.GREATER_EQUAL:
+        return left >= right;
+      case TokenType.LESS:
+        return left < right;
+      case TokenType.LESS_EQUAL:
+        return left <= right;
+      default:
+        throw produceError(token.line, token.lexeme, 'Should not happen.');
+    }
+  }
+
+  visitLogicalExpression(node: Expression.LogicalExpression): EnvironmentValue {
     const left = this.evaluate(node.left);
 
     if (node.operator.type === TokenType.OR) {
@@ -227,9 +249,17 @@ class Interpreter {
       }
       return left;
     }
+
+    throw produceError(
+      node.operator.line,
+      node.operator.lexeme,
+      'Should not happen.',
+    );
   }
 
-  visitAssignmentExpression(node: Expression.AssignmentExpression): any {
+  visitAssignmentExpression(
+    node: Expression.AssignmentExpression,
+  ): EnvironmentValue {
     const value = this.evaluate(node.value);
 
     if (!this.scopeRecord.has(node)) {
@@ -245,7 +275,9 @@ class Interpreter {
     return value;
   }
 
-  visitVariableExpression(node: Expression.VariableExpression): any {
+  visitVariableExpression(
+    node: Expression.VariableExpression,
+  ): EnvironmentValue {
     if (!this.scopeRecord.has(node)) {
       return this.global.get(node.name);
     }
@@ -256,12 +288,12 @@ class Interpreter {
     return environment.get(node.name);
   }
 
-  visitCallExpression(node: Expression.CallExpression): any {
+  visitCallExpression(node: Expression.CallExpression): EnvironmentValue {
     const callee = this.evaluate(node.callee);
     const args = node.args.map((item) => this.evaluate(item));
 
     if (!(callee instanceof LoxFunction)) {
-      reportError(
+      throw produceError(
         node.endParenthese.line,
         node.endParenthese.lexeme,
         'Can only call functions and classes.',
@@ -269,7 +301,7 @@ class Interpreter {
     }
 
     if (args.length !== callee.arity()) {
-      reportError(
+      throw produceError(
         node.endParenthese.line,
         node.endParenthese.lexeme,
         `Expect ${callee.arity()} arguments but got ${args.length}.`,
@@ -279,20 +311,20 @@ class Interpreter {
     return callee.call(this, args);
   }
 
-  visitGetExpression(node: Expression.GetExpression): any {
+  visitGetExpression(node: Expression.GetExpression): EnvironmentValue {
     const obj = this.evaluate(node.object);
     if (obj instanceof LoxInstance) {
       return obj.get(node.name);
     }
 
-    reportError(
+    throw produceError(
       node.name.line,
       node.name.lexeme,
       'Only instances have properties.',
     );
   }
 
-  visitSetExpression(node: Expression.SetExpression): any {
+  visitSetExpression(node: Expression.SetExpression): EnvironmentValue {
     const obj = this.evaluate(node.object);
 
     if (obj instanceof LoxInstance) {
@@ -303,23 +335,19 @@ class Interpreter {
       return value;
     }
 
-    reportError(
+    throw produceError(
       node.name.line,
       node.name.lexeme,
       'Only instances have properties.',
     );
   }
 
-  visitThisExpression(node: Expression.ThisExpression): any {
-    if (!this.scopeRecord.has(node)) {
-      return this.global.get(node.keyword);
-    }
-
+  visitThisExpression(node: Expression.ThisExpression): LoxInstance {
     const distance = this.scopeRecord.get(node)!;
     const environment = this.environment.getEnvironmentByDistance(distance);
 
-    return environment.get(node.keyword);
+    return environment.get(node.keyword) as LoxInstance;
   }
 }
 
-export { Interpreter as default };
+export { Interpreter as default, LoxClass, LoxFunction, LoxInstance };

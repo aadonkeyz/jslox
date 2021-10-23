@@ -1,4 +1,4 @@
-import Token, { KEYWORDS_MAP, TokenType } from './token';
+import Token, { KEYWORDS_MAP, TokenType, LiteralValue } from './token';
 
 class Scanner {
   source: string;
@@ -210,3 +210,4 @@ class Scanner {
 }
 
 export { Scanner as default, Token, TokenType };
+export type { LiteralValue };

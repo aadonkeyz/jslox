@@ -23,7 +23,7 @@ var foo;
       interpreter.environment.get(
         new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 2 }),
       ),
-    ).toStrictEqual(undefined);
+    ).toStrictEqual(null);
   });
 
   test('declare foo with value', () => {
