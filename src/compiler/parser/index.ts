@@ -1,4 +1,4 @@
-import { Token, TokenType } from '../scanner';
+import { Token, TokenType, LiteralValue } from '../scanner';
 import * as Expression from './expression';
 import * as Statement from './statement';
 
@@ -424,7 +424,9 @@ class Parser {
 
   primary(): Expression.BaseExpression {
     if (this.match([TokenType.NUMBER, TokenType.STRING])) {
-      return new Expression.LiteralExpression(this.previous().literal);
+      return new Expression.LiteralExpression(
+        this.previous().literal as LiteralValue,
+      );
     }
 
     if (this.match([TokenType.TRUE])) {

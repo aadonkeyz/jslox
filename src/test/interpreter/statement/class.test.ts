@@ -3,9 +3,30 @@ import Parser from '../../../compiler/parser';
 import Interpreter from '../../../compiler/interpreter';
 import { ScopeAnalyst } from '../../../compiler/semantic';
 
-describe('print', () => {
-  test('print binary expression', () => {
-    const source = `print 1 + 2 * 3 / 4 - 5;`;
+describe('class', () => {
+  test('all class features', () => {
+    const source = `
+class Foo {
+  init(name) {
+    this.name = name;
+  }
+
+  sayName() {
+    return this.name;
+  }
+
+  generateSayName() {
+    return this.sayName;
+  }
+}
+
+var a = Foo('a');
+var b = Foo('b');
+
+b.sayName = a.generateSayName();
+
+var name = b.sayName();
+`;
     const scanner = new Scanner(source);
     scanner.scan();
     const parser = new Parser(scanner.tokens);
@@ -17,6 +38,11 @@ describe('print', () => {
       scopeAnalyst.scopeRecord,
     );
     interpreter.interpret();
-    expect('should console -2.5').toStrictEqual('should console -2.5');
+
+    expect(
+      interpreter.environment.get(
+        new Token({ type: TokenType.IDENTIFIER, lexeme: 'name', line: 21 }),
+      ),
+    ).toStrictEqual('a');
   });
 });

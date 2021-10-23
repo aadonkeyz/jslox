@@ -1,7 +1,7 @@
 import Scanner, { Token, TokenType } from '../../../compiler/scanner';
 import Parser, { Expression, Statement } from '../../../compiler/parser';
 
-describe('function', () => {
+describe('funDecl', () => {
   test('no args', () => {
     const source = `
 fun test() {
@@ -26,7 +26,7 @@ fun test() {
 
   test('with args', () => {
     const source = `
-fun test(a) {
+fun test(a, b) {
   print a;
 }
 `;
@@ -38,7 +38,10 @@ fun test(a) {
     expect(parser.statements[0]).toStrictEqual(
       new Statement.FunctionStatement(
         new Token({ type: TokenType.IDENTIFIER, lexeme: 'test', line: 2 }),
-        [new Token({ type: TokenType.IDENTIFIER, lexeme: 'a', line: 2 })],
+        [
+          new Token({ type: TokenType.IDENTIFIER, lexeme: 'a', line: 2 }),
+          new Token({ type: TokenType.IDENTIFIER, lexeme: 'b', line: 2 }),
+        ],
         new Statement.BlockStatement([
           new Statement.PrintStatement(
             new Expression.VariableExpression(

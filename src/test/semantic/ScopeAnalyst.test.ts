@@ -1,7 +1,6 @@
 import Scanner, { Token, TokenType } from '../../compiler/scanner';
 import Parser, { Expression } from '../../compiler/parser';
-import ScopeAnalyst from '../../compiler/semantic/ScopeAnalyst';
-import { VariableExpression } from '../../compiler/parser/expression';
+import { ScopeAnalyst } from '../../compiler/semantic';
 
 describe('ScopeAnalyst', () => {
   test('top-level return', () => {
@@ -81,7 +80,7 @@ var bar = fn1(1,2);
       new Expression.AssignmentExpression(
         new Token({ type: TokenType.IDENTIFIER, lexeme: 'i', line: 5 }),
         new Expression.BinaryExpression(
-          new VariableExpression(
+          new Expression.VariableExpression(
             new Token({ type: TokenType.IDENTIFIER, lexeme: 'i', line: 5 }),
           ),
           new Token({ type: TokenType.PLUS, lexeme: '+', line: 5 }),

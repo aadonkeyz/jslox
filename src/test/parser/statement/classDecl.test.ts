@@ -1,5 +1,5 @@
 import Scanner, { Token, TokenType } from '../../../compiler/scanner';
-import Parser, { Expression, Statement } from '../../../compiler/parser';
+import Parser, { Statement } from '../../../compiler/parser';
 
 describe('classDecl', () => {
   test('normal', () => {

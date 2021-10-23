@@ -1,7 +1,7 @@
 import Scanner, { Token, TokenType } from '../../../compiler/scanner';
 import Parser from '../../../compiler/parser';
 import Interpreter from '../../../compiler/interpreter';
-import ScopeAnalyst from '../../../compiler/semantic/ScopeAnalyst';
+import { ScopeAnalyst } from '../../../compiler/semantic';
 
 describe('while', () => {
   test('avoid infinite loop', () => {

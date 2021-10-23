@@ -292,7 +292,7 @@ class Interpreter {
     const callee = this.evaluate(node.callee);
     const args = node.args.map((item) => this.evaluate(item));
 
-    if (!(callee instanceof LoxFunction)) {
+    if (!(callee instanceof LoxFunction || callee instanceof LoxClass)) {
       throw produceError(
         node.endParenthese.line,
         node.endParenthese.lexeme,

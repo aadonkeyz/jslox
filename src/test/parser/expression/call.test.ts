@@ -24,7 +24,7 @@ test();
 
   test('with args', () => {
     const source = `
-test(a);
+test(a, b);
 `;
     const scanner = new Scanner(source);
     scanner.scan();
@@ -39,6 +39,9 @@ test(a);
         [
           new Expression.VariableExpression(
             new Token({ type: TokenType.IDENTIFIER, lexeme: 'a', line: 2 }),
+          ),
+          new Expression.VariableExpression(
+            new Token({ type: TokenType.IDENTIFIER, lexeme: 'b', line: 2 }),
           ),
         ],
         new Token({ type: TokenType.RIGHT_PARENTHESE, lexeme: ')', line: 2 }),
