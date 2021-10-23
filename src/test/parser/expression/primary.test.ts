@@ -66,6 +66,21 @@ describe('primary', () => {
     );
   });
 
+  test('super', () => {
+    const source = 'super.foo';
+    const scanner = new Scanner(source);
+    scanner.scan();
+    const parser = new Parser(scanner.tokens);
+    const root = parser.expression();
+
+    expect(root).toStrictEqual(
+      new Expression.SuperExpression(
+        new Token({ type: TokenType.SUPER, lexeme: 'super', line: 1 }),
+        new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 1 }),
+      ),
+    );
+  });
+
   test('identifier', () => {
     const source = 'foo';
     const scanner = new Scanner(source);

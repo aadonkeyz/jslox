@@ -1,7 +1,7 @@
 import Interpreter from '../interpreter';
 import { ScopeAnalyst } from '../semantic';
 import { Token } from '../scanner';
-import { BaseExpression } from './expression';
+import { Expression } from '.';
 
 type Visitor = Interpreter | ScopeAnalyst;
 
@@ -10,9 +10,9 @@ class BaseStatement {
 }
 
 class ExpressionStatement extends BaseStatement {
-  expression: BaseExpression;
+  expression: Expression.BaseExpression;
 
-  constructor(expression: BaseExpression) {
+  constructor(expression: Expression.BaseExpression) {
     super();
     this.expression = expression;
   }
@@ -23,12 +23,12 @@ class ExpressionStatement extends BaseStatement {
 }
 
 class IfStatement extends BaseStatement {
-  condition: BaseExpression;
+  condition: Expression.BaseExpression;
   thenBranch: BaseStatement;
   elseBranch?: BaseStatement;
 
   constructor(
-    condition: BaseExpression,
+    condition: Expression.BaseExpression,
     thenBranch: BaseStatement,
     elseBranch?: BaseStatement,
   ) {
@@ -44,9 +44,9 @@ class IfStatement extends BaseStatement {
 }
 
 class PrintStatement extends BaseStatement {
-  expression: BaseExpression;
+  expression: Expression.BaseExpression;
 
-  constructor(expression: BaseExpression) {
+  constructor(expression: Expression.BaseExpression) {
     super();
     this.expression = expression;
   }
@@ -57,10 +57,10 @@ class PrintStatement extends BaseStatement {
 }
 
 class WhileStatement extends BaseStatement {
-  condition: BaseExpression;
+  condition: Expression.BaseExpression;
   body: BaseStatement;
 
-  constructor(condition: BaseExpression, body: BaseStatement) {
+  constructor(condition: Expression.BaseExpression, body: BaseStatement) {
     super();
     this.condition = condition;
     this.body = body;
@@ -73,14 +73,14 @@ class WhileStatement extends BaseStatement {
 
 class ForStatement extends BaseStatement {
   initializer?: BaseStatement;
-  condition?: BaseExpression;
-  updator?: BaseExpression;
+  condition?: Expression.BaseExpression;
+  updator?: Expression.BaseExpression;
   body: BaseStatement;
 
   constructor(props: {
     initializer?: BaseStatement;
-    condition?: BaseExpression;
-    updator?: BaseExpression;
+    condition?: Expression.BaseExpression;
+    updator?: Expression.BaseExpression;
     body: BaseStatement;
   }) {
     super();
@@ -97,9 +97,9 @@ class ForStatement extends BaseStatement {
 
 class VarStatement extends BaseStatement {
   name: Token;
-  initializer?: BaseExpression;
+  initializer?: Expression.BaseExpression;
 
-  constructor(name: Token, initializer?: BaseExpression) {
+  constructor(name: Token, initializer?: Expression.BaseExpression) {
     super();
     this.name = name;
     this.initializer = initializer;
@@ -142,9 +142,9 @@ class FunctionStatement extends BaseStatement {
 
 class ReturnStatement extends BaseStatement {
   keyword: Token;
-  value: BaseExpression;
+  value: Expression.BaseExpression;
 
-  constructor(keyword: Token, value: BaseExpression) {
+  constructor(keyword: Token, value: Expression.BaseExpression) {
     super();
     this.keyword = keyword;
     this.value = value;
@@ -157,11 +157,17 @@ class ReturnStatement extends BaseStatement {
 
 class ClassStatement extends BaseStatement {
   name: Token;
+  superclass: Expression.VariableExpression | null;
   methods: FunctionStatement[];
 
-  constructor(name: Token, methods: FunctionStatement[]) {
+  constructor(
+    name: Token,
+    superclass: Expression.VariableExpression | null,
+    methods: FunctionStatement[],
+  ) {
     super();
     this.name = name;
+    this.superclass = superclass;
     this.methods = methods;
   }
 

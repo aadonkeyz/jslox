@@ -162,4 +162,55 @@ fun foo() {
       message: "Can't use 'this' outside of a class.",
     });
   });
+
+  test('inherite itself', () => {
+    const source = `
+class foo < foo {}
+`;
+    const scanner = new Scanner(source);
+    scanner.scan();
+    const parser = new Parser(scanner.tokens);
+    parser.parse();
+    const scopeAnalyst = new ScopeAnalyst(parser.statements);
+    scopeAnalyst.analysis();
+
+    expect(scopeAnalyst.errors.length).toStrictEqual(1);
+    expect(scopeAnalyst.errors[0]).toStrictEqual({
+      line: 2,
+      where: 'foo',
+      message: "A class can't inherit from itself.",
+    });
+  });
+
+  test('misuse super', () => {
+    const source = `
+fun foo() {
+  print super.a;
+}
+
+class bar {
+  init() {
+    print super.a;
+  }
+}
+`;
+    const scanner = new Scanner(source);
+    scanner.scan();
+    const parser = new Parser(scanner.tokens);
+    parser.parse();
+    const scopeAnalyst = new ScopeAnalyst(parser.statements);
+    scopeAnalyst.analysis();
+
+    expect(scopeAnalyst.errors.length).toStrictEqual(2);
+    expect(scopeAnalyst.errors[0]).toStrictEqual({
+      line: 3,
+      where: 'super',
+      message: 'Can\'t use "super" outside of a class.',
+    });
+    expect(scopeAnalyst.errors[1]).toStrictEqual({
+      line: 8,
+      where: 'super',
+      message: 'Can\'t use "super" in a class with no superclass.',
+    });
+  });
 });

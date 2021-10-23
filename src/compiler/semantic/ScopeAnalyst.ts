@@ -11,6 +11,7 @@ enum FunctionType {
 enum ClassType {
   NONE,
   CLASS,
+  SUBCLASS,
 }
 
 class ScopeAnalyst {
@@ -166,6 +167,22 @@ class ScopeAnalyst {
 
     this.declare(node.name);
 
+    if (node.superclass) {
+      if (node.name.lexeme === node.superclass.name.lexeme) {
+        this.errors.push({
+          line: node.name.line,
+          where: node.name.lexeme,
+          message: "A class can't inherit from itself.",
+        });
+      }
+
+      this.evaluateItem(node.superclass);
+
+      this.scopes.push({ super: true });
+
+      this.classType = ClassType.SUBCLASS;
+    }
+
     this.scopes.push({ this: true });
 
     node.methods.forEach((item) => {
@@ -178,6 +195,10 @@ class ScopeAnalyst {
     });
 
     this.scopes.pop();
+
+    if (node.superclass) {
+      this.scopes.pop();
+    }
 
     this.define(node.name);
 
@@ -246,6 +267,24 @@ class ScopeAnalyst {
         message: "Can't use 'this' outside of a class.",
       });
     }
+    this.calculate(node, node.keyword);
+  }
+
+  visitSuperExpression(node: Expression.SuperExpression): void {
+    if (this.classType === ClassType.NONE) {
+      this.errors.push({
+        line: node.keyword.line,
+        where: node.keyword.lexeme,
+        message: 'Can\'t use "super" outside of a class.',
+      });
+    } else if (this.classType === ClassType.CLASS) {
+      this.errors.push({
+        line: node.keyword.line,
+        where: node.keyword.lexeme,
+        message: 'Can\'t use "super" in a class with no superclass.',
+      });
+    }
+
     this.calculate(node, node.keyword);
   }
 }

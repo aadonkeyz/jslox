@@ -177,6 +177,21 @@ class ThisExpression extends BaseExpression {
   }
 }
 
+class SuperExpression extends BaseExpression {
+  keyword: Token;
+  method: Token;
+
+  constructor(keyword: Token, method: Token) {
+    super();
+    this.keyword = keyword;
+    this.method = method;
+  }
+
+  accept(visitor: Visitor) {
+    return visitor.visitSuperExpression(this);
+  }
+}
+
 export {
   BaseExpression,
   BinaryExpression,
@@ -190,4 +205,5 @@ export {
   GetExpression,
   SetExpression,
   ThisExpression,
+  SuperExpression,
 };

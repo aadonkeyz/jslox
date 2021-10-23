@@ -5,10 +5,16 @@ import LoxInstance from './LoxInstance';
 
 class LoxClass {
   name: string;
+  superclass: LoxClass | null;
   methods: Record<string, LoxFunction>;
 
-  constructor(name: string, methods: Record<string, LoxFunction>) {
+  constructor(
+    name: string,
+    superclass: LoxClass | null,
+    methods: Record<string, LoxFunction>,
+  ) {
     this.name = name;
+    this.superclass = superclass;
     this.methods = methods;
   }
 
@@ -18,6 +24,18 @@ class LoxClass {
       return initializer.arity();
     }
     return 0;
+  }
+
+  findMethod(name: string): LoxFunction | null {
+    if (name in this.methods) {
+      return this.methods[name];
+    }
+
+    if (this.superclass) {
+      return this.superclass.findMethod(name);
+    }
+
+    return null;
   }
 
   call(interpreter: Interpreter, args: EnvironmentValue[]): LoxInstance {

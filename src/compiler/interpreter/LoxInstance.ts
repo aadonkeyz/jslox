@@ -17,8 +17,9 @@ class LoxInstance {
       return this.fields[name.lexeme];
     }
 
-    if (name.lexeme in this.belongClass.methods) {
-      return this.belongClass.methods[name.lexeme].bind(this);
+    const method = this.belongClass.findMethod(name.lexeme);
+    if (method) {
+      return method.bind(this);
     }
 
     throw produceError(

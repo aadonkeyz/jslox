@@ -45,6 +45,24 @@ class Interpreter {
   visitClassStatement(node: Statement.ClassStatement): void {
     this.environment.define(node.name.lexeme, null);
 
+    let superclass = null;
+    let previous = null;
+    if (node.superclass) {
+      superclass = this.evaluate(node.superclass);
+
+      if (!(superclass instanceof LoxClass)) {
+        throw produceError(
+          node.superclass.name.line,
+          node.superclass.name.lexeme,
+          'Superclass must be a class.',
+        );
+      }
+
+      previous = this.environment;
+      this.environment = new Environment(previous);
+      this.environment.define('super', superclass);
+    }
+
     const methods = node.methods.reduce((pre, cur) => {
       const method = new LoxFunction(
         cur,
@@ -57,7 +75,12 @@ class Interpreter {
       };
     }, {});
 
-    const loxClass = new LoxClass(node.name.lexeme, methods);
+    const loxClass = new LoxClass(node.name.lexeme, superclass, methods);
+
+    if (previous) {
+      this.environment = previous;
+    }
+
     this.environment.assign(node.name, loxClass);
   }
 
@@ -347,6 +370,27 @@ class Interpreter {
     const environment = this.environment.getEnvironmentByDistance(distance);
 
     return environment.get(node.keyword) as LoxInstance;
+  }
+
+  visitSuperExpression(node: Expression.SuperExpression): LoxFunction {
+    const distance = this.scopeRecord.get(node)!;
+    const environment = this.environment.getEnvironmentByDistance(distance);
+
+    const superclass = environment.get(node.keyword) as LoxClass;
+    const obj = this.environment.getEnvironmentByDistance(distance - 1).values
+      .this as LoxInstance;
+
+    const method = superclass.findMethod(node.method.lexeme);
+
+    if (method) {
+      return method.bind(obj);
+    }
+
+    throw produceError(
+      node.keyword.line,
+      node.keyword.lexeme,
+      `Undefined property ${node.method.lexeme}`,
+    );
   }
 }
 

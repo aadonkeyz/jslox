@@ -4,7 +4,7 @@ import Interpreter from '../../../compiler/interpreter';
 import { ScopeAnalyst } from '../../../compiler/semantic';
 
 describe('class', () => {
-  test('all class features', () => {
+  test('class declaration, get, set, this', () => {
     const source = `
 class Foo {
   init(name) {
@@ -26,6 +26,10 @@ var b = Foo('b');
 b.sayName = a.generateSayName();
 
 var name = b.sayName();
+
+b.a = a;
+
+var nameAgain = b.a.sayName();
 `;
     const scanner = new Scanner(source);
     scanner.scan();
@@ -44,5 +48,78 @@ var name = b.sayName();
         new Token({ type: TokenType.IDENTIFIER, lexeme: 'name', line: 21 }),
       ),
     ).toStrictEqual('a');
+    expect(
+      interpreter.environment.get(
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'nameAgain',
+          line: 23,
+        }),
+      ),
+    ).toStrictEqual('a');
+  });
+
+  test('superclass', () => {
+    const source = `
+class Foo {
+  sayHi() {
+    return this.hi;
+  }
+}
+class Doughnut < Foo {
+  init() {
+    this.name = 'Doughnut';
+  }
+  sayName() {
+    return this.name;
+  }
+  sayHello() {
+    return this.hello;
+  }
+}
+
+class BostonCream < Doughnut {
+  init() {
+    this.name = 'BostonCream';
+    this.hello = 'hello';
+    this.hi = 'hi';
+  }
+
+  sayName() {
+    return super.sayName();
+  }
+}
+
+var name = BostonCream().sayName();
+var hi = BostonCream().sayHi();
+var hello = BostonCream().sayHello();
+`;
+    const scanner = new Scanner(source);
+    scanner.scan();
+    const parser = new Parser(scanner.tokens);
+    parser.parse();
+    const scopeAnalyst = new ScopeAnalyst(parser.statements);
+    scopeAnalyst.analysis();
+    const interpreter = new Interpreter(
+      parser.statements,
+      scopeAnalyst.scopeRecord,
+    );
+    interpreter.interpret();
+
+    expect(
+      interpreter.environment.get(
+        new Token({ type: TokenType.IDENTIFIER, lexeme: 'name', line: 31 }),
+      ),
+    ).toStrictEqual('BostonCream');
+    expect(
+      interpreter.environment.get(
+        new Token({ type: TokenType.IDENTIFIER, lexeme: 'hi', line: 32 }),
+      ),
+    ).toStrictEqual('hi');
+    expect(
+      interpreter.environment.get(
+        new Token({ type: TokenType.IDENTIFIER, lexeme: 'hello', line: 33 }),
+      ),
+    ).toStrictEqual('hello');
   });
 });

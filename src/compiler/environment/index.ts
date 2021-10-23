@@ -20,16 +20,16 @@ class Environment {
     this.values[name] = value;
   }
 
-  get(nameToken: Token): EnvironmentValue {
-    if (nameToken.lexeme in this.values) {
-      return this.values[nameToken.lexeme];
+  get(name: Token): EnvironmentValue {
+    if (name.lexeme in this.values) {
+      return this.values[name.lexeme];
     }
 
     if (this.enclosing) {
-      return this.enclosing.get(nameToken);
+      return this.enclosing.get(name);
     }
 
-    throw produceError(nameToken.line, nameToken.lexeme, 'Undefined variable');
+    throw produceError(name.line, name.lexeme, 'Undefined variable');
   }
 
   getEnvironmentByDistance(distance: number): Environment {
@@ -43,18 +43,18 @@ class Environment {
     return environment;
   }
 
-  assign(nameToken: Token, value: EnvironmentValue): void {
-    if (nameToken.lexeme in this.values) {
-      this.values[nameToken.lexeme] = value;
+  assign(name: Token, value: EnvironmentValue): void {
+    if (name.lexeme in this.values) {
+      this.values[name.lexeme] = value;
       return;
     }
 
     if (this.enclosing) {
-      this.enclosing.assign(nameToken, value);
+      this.enclosing.assign(name, value);
       return;
     }
 
-    throw produceError(nameToken.line, nameToken.lexeme, 'Undefined variable');
+    throw produceError(name.line, name.lexeme, 'Undefined variable');
   }
 }
 

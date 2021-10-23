@@ -5,7 +5,7 @@ import * as Statement from './statement';
 /**
  * program        → declaration* EOF
  * declaration    → classDecl | funDecl | varDecl | statement
- * classDecl      → "class" IDENTIFIER "{" function* "}"
+ * classDecl      → "class" IDENTIFIER ( "<" IDENTIFIER )? "{" function* "}"
  * funDecl        → "fun" function
  * function       → IDENTIFIER "(" parameters? ")" block
  * parameters     → IDENTIFIER ( "," IDENTIFIER )*
@@ -32,7 +32,7 @@ import * as Statement from './statement';
  * unary          → ( "!" | "-" ) unary | call
  * call           → primary ( "(" arguments? ")" | "." IDENTIFIER )*
  * arguments      → expression ( "," expression )*
- * primary        → NUMBER | STRING | "true" | "false" | "nil" | "this" | IDENTIFIER | "(" expression ")"
+ * primary        → NUMBER | STRING | "true" | "false" | "nil" | "this" | IDENTIFIER | "(" expression ")" | "super" "." IDENTIFIER
  */
 
 class Parser {
@@ -99,6 +99,13 @@ class Parser {
 
   classDecl(): Statement.ClassStatement {
     const name = this.consume(TokenType.IDENTIFIER, `Expect class name.`);
+
+    let superclass = null;
+    if (this.match([TokenType.LESS])) {
+      this.consume(TokenType.IDENTIFIER, 'Expect superclass name.');
+      superclass = new Expression.VariableExpression(this.previous());
+    }
+
     this.consume(TokenType.LEFT_BRACE, 'Expect "{" before class body.');
 
     const methods: Statement.FunctionStatement[] = [];
@@ -108,7 +115,7 @@ class Parser {
 
     this.consume(TokenType.RIGHT_BRACE, 'Expect "}" after class body.');
 
-    return new Statement.ClassStatement(name, methods);
+    return new Statement.ClassStatement(name, superclass, methods);
   }
 
   varDecl(): Statement.VarStatement {
@@ -443,6 +450,13 @@ class Parser {
 
     if (this.match([TokenType.THIS])) {
       return new Expression.ThisExpression(this.previous());
+    }
+
+    if (this.match([TokenType.SUPER])) {
+      const keyword = this.previous();
+      this.consume(TokenType.DOT, 'Expect "." after "super".');
+      this.consume(TokenType.IDENTIFIER, 'Expect superclass method name.');
+      return new Expression.SuperExpression(keyword, this.previous());
     }
 
     if (this.match([TokenType.IDENTIFIER])) {
