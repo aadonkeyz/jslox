@@ -30,7 +30,7 @@ function App() {
           border: 'none',
         }}
         title="grammer"
-        src="http://craftinginterpreters.com/the-lox-language.html"
+        src="https://craftinginterpreters.com/the-lox-language.html"
       />
     </div>
   );
