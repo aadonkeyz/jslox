@@ -15,11 +15,21 @@ class Test {
 
     expect(parser.statements[0]).toStrictEqual(
       new Statement.ClassStatement(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'Test', line: 2 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'Test',
+          line: 2,
+          column: 7,
+        }),
         null,
         [
           new Statement.FunctionStatement(
-            new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 3 }),
+            new Token({
+              type: TokenType.IDENTIFIER,
+              lexeme: 'foo',
+              line: 3,
+              column: 3,
+            }),
             [],
             new Statement.BlockStatement([]),
           ),
@@ -45,11 +55,21 @@ class Demo < Test {
 
     expect(parser.statements[0]).toStrictEqual(
       new Statement.ClassStatement(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'Test', line: 2 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'Test',
+          line: 2,
+          column: 7,
+        }),
         null,
         [
           new Statement.FunctionStatement(
-            new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 3 }),
+            new Token({
+              type: TokenType.IDENTIFIER,
+              lexeme: 'foo',
+              line: 3,
+              column: 3,
+            }),
             [],
             new Statement.BlockStatement([]),
           ),
@@ -59,13 +79,28 @@ class Demo < Test {
 
     expect(parser.statements[1]).toStrictEqual(
       new Statement.ClassStatement(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'Demo', line: 6 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'Demo',
+          line: 6,
+          column: 7,
+        }),
         new Expression.VariableExpression(
-          new Token({ type: TokenType.IDENTIFIER, lexeme: 'Test', line: 6 }),
+          new Token({
+            type: TokenType.IDENTIFIER,
+            lexeme: 'Test',
+            line: 6,
+            column: 14,
+          }),
         ),
         [
           new Statement.FunctionStatement(
-            new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 7 }),
+            new Token({
+              type: TokenType.IDENTIFIER,
+              lexeme: 'foo',
+              line: 7,
+              column: 3,
+            }),
             [],
             new Statement.BlockStatement([]),
           ),

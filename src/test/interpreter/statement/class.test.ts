@@ -45,7 +45,12 @@ var nameAgain = b.a.sayName();
 
     expect(
       interpreter.environment.get(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'name', line: 21 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'name',
+          line: 21,
+          column: 1,
+        }),
       ),
     ).toStrictEqual('a');
     expect(
@@ -54,6 +59,7 @@ var nameAgain = b.a.sayName();
           type: TokenType.IDENTIFIER,
           lexeme: 'nameAgain',
           line: 23,
+          column: 1,
         }),
       ),
     ).toStrictEqual('a');
@@ -108,17 +114,32 @@ var hello = BostonCream().sayHello();
 
     expect(
       interpreter.environment.get(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'name', line: 31 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'name',
+          line: 31,
+          column: 1,
+        }),
       ),
     ).toStrictEqual('BostonCream');
     expect(
       interpreter.environment.get(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'hi', line: 32 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'hi',
+          line: 32,
+          column: 1,
+        }),
       ),
     ).toStrictEqual('hi');
     expect(
       interpreter.environment.get(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'hello', line: 33 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'hello',
+          line: 33,
+          column: 1,
+        }),
       ),
     ).toStrictEqual('hello');
   });

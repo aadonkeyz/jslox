@@ -18,7 +18,12 @@ if (true) {
         new Expression.LiteralExpression(true),
         new Statement.BlockStatement([
           new Statement.VarStatement(
-            new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 3 }),
+            new Token({
+              type: TokenType.IDENTIFIER,
+              lexeme: 'foo',
+              line: 3,
+              column: 7,
+            }),
             new Expression.LiteralExpression(1),
           ),
         ]),
@@ -44,13 +49,23 @@ if (true) {
         new Expression.LiteralExpression(true),
         new Statement.BlockStatement([
           new Statement.VarStatement(
-            new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 3 }),
+            new Token({
+              type: TokenType.IDENTIFIER,
+              lexeme: 'foo',
+              line: 3,
+              column: 7,
+            }),
             new Expression.LiteralExpression(1),
           ),
         ]),
         new Statement.BlockStatement([
           new Statement.VarStatement(
-            new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 5 }),
+            new Token({
+              type: TokenType.IDENTIFIER,
+              lexeme: 'foo',
+              line: 5,
+              column: 7,
+            }),
             new Expression.LiteralExpression(2),
           ),
         ]),

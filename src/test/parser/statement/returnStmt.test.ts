@@ -11,7 +11,12 @@ describe('returnStmt', () => {
 
     expect(parser.statements[0]).toStrictEqual(
       new Statement.ReturnStatement(
-        new Token({ type: TokenType.RETURN, lexeme: 'return', line: 1 }),
+        new Token({
+          type: TokenType.RETURN,
+          lexeme: 'return',
+          line: 1,
+          column: 1,
+        }),
         new Expression.LiteralExpression(null),
       ),
     );
@@ -26,7 +31,12 @@ describe('returnStmt', () => {
 
     expect(parser.statements[0]).toStrictEqual(
       new Statement.ReturnStatement(
-        new Token({ type: TokenType.RETURN, lexeme: 'return', line: 1 }),
+        new Token({
+          type: TokenType.RETURN,
+          lexeme: 'return',
+          line: 1,
+          column: 1,
+        }),
         new Expression.LiteralExpression(1),
       ),
     );

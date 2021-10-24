@@ -61,7 +61,7 @@ describe('primary', () => {
 
     expect(root).toStrictEqual(
       new Expression.ThisExpression(
-        new Token({ type: TokenType.THIS, lexeme: 'this', line: 1 }),
+        new Token({ type: TokenType.THIS, lexeme: 'this', line: 1, column: 1 }),
       ),
     );
   });
@@ -75,8 +75,18 @@ describe('primary', () => {
 
     expect(root).toStrictEqual(
       new Expression.SuperExpression(
-        new Token({ type: TokenType.SUPER, lexeme: 'super', line: 1 }),
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 1 }),
+        new Token({
+          type: TokenType.SUPER,
+          lexeme: 'super',
+          line: 1,
+          column: 1,
+        }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'foo',
+          line: 1,
+          column: 7,
+        }),
       ),
     );
   });
@@ -90,7 +100,12 @@ describe('primary', () => {
 
     expect(root).toStrictEqual(
       new Expression.VariableExpression(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 1 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'foo',
+          line: 1,
+          column: 1,
+        }),
       ),
     );
   });
@@ -106,7 +121,7 @@ describe('primary', () => {
       new Expression.GroupingExpression(
         new Expression.BinaryExpression(
           new Expression.LiteralExpression(1),
-          new Token({ type: TokenType.PLUS, lexeme: '+', line: 1 }),
+          new Token({ type: TokenType.PLUS, lexeme: '+', line: 1, column: 4 }),
           new Expression.LiteralExpression(2),
         ),
       ),

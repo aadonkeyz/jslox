@@ -6,7 +6,12 @@ describe('assignment', () => {
   test('foo = 1', () => {
     const interpreter = new Interpreter([]);
     const expression = new Expression.AssignmentExpression(
-      new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 1 }),
+      new Token({
+        type: TokenType.IDENTIFIER,
+        lexeme: 'foo',
+        line: 1,
+        column: 1,
+      }),
       new Expression.LiteralExpression(100),
     );
     interpreter.environment.define('foo', 100);

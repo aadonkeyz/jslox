@@ -15,7 +15,12 @@ fun test() {
 
     expect(parser.statements[0]).toStrictEqual(
       new Statement.FunctionStatement(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'test', line: 2 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'test',
+          line: 2,
+          column: 5,
+        }),
         [],
         new Statement.BlockStatement([
           new Statement.PrintStatement(new Expression.LiteralExpression(1)),
@@ -37,15 +42,35 @@ fun test(a, b) {
 
     expect(parser.statements[0]).toStrictEqual(
       new Statement.FunctionStatement(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'test', line: 2 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'test',
+          line: 2,
+          column: 5,
+        }),
         [
-          new Token({ type: TokenType.IDENTIFIER, lexeme: 'a', line: 2 }),
-          new Token({ type: TokenType.IDENTIFIER, lexeme: 'b', line: 2 }),
+          new Token({
+            type: TokenType.IDENTIFIER,
+            lexeme: 'a',
+            line: 2,
+            column: 10,
+          }),
+          new Token({
+            type: TokenType.IDENTIFIER,
+            lexeme: 'b',
+            line: 2,
+            column: 13,
+          }),
         ],
         new Statement.BlockStatement([
           new Statement.PrintStatement(
             new Expression.VariableExpression(
-              new Token({ type: TokenType.IDENTIFIER, lexeme: 'a', line: 3 }),
+              new Token({
+                type: TokenType.IDENTIFIER,
+                lexeme: 'a',
+                line: 3,
+                column: 9,
+              }),
             ),
           ),
         ]),

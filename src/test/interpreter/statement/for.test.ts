@@ -25,7 +25,12 @@ for (; foo > 0; foo = foo - 1) {
 
     expect(
       interpreter.environment.get(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 2 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'foo',
+          line: 2,
+          column: 1,
+        }),
       ),
     ).toStrictEqual(0);
   });
@@ -52,7 +57,12 @@ for (var bar = 50; foo > 0; foo = foo - 1) {
 
     expect(
       interpreter.environment.get(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'bar', line: 3 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'bar',
+          line: 3,
+          column: 1,
+        }),
       ),
     ).toStrictEqual(1);
   });

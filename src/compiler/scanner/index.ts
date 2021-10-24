@@ -8,6 +8,7 @@ class Scanner {
   line: number;
   errors: {
     line: number;
+    column: number;
     message: string;
   }[];
 
@@ -27,7 +28,12 @@ class Scanner {
     }
 
     this.tokens.push(
-      new Token({ type: TokenType.EOF, lexeme: '', line: this.line }),
+      new Token({
+        type: TokenType.EOF,
+        lexeme: '',
+        line: this.line,
+        column: this.calculateColumn(this.source.length - 1),
+      }),
     );
   }
 
@@ -109,7 +115,8 @@ class Scanner {
         } else {
           this.errors.push({
             line: this.line,
-            message: 'Unexpected character.',
+            column: this.calculateColumn(this.current - 1),
+            message: 'Unexpected character',
           });
         }
         break;
@@ -162,7 +169,11 @@ class Scanner {
     }
 
     if (this.isAtEnd()) {
-      this.errors.push({ line: this.line, message: 'Unterminated string.' });
+      this.errors.push({
+        line: this.line,
+        column: this.calculateColumn(this.current - 1),
+        message: 'Unterminated string',
+      });
       return;
     }
 
@@ -205,7 +216,19 @@ class Scanner {
 
   addToken(type: TokenType, literal?: string | number): void {
     const lexeme = this.source.slice(this.start, this.current);
-    this.tokens.push(new Token({ type, lexeme, line: this.line, literal }));
+    this.tokens.push(
+      new Token({
+        type,
+        lexeme,
+        line: this.line,
+        column: this.calculateColumn(this.start),
+        literal,
+      }),
+    );
+  }
+
+  calculateColumn(targetIndex: number): number {
+    return targetIndex - this.source.slice(0, targetIndex).lastIndexOf('\n');
   }
 }
 

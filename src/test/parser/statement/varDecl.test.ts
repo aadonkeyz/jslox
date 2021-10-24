@@ -11,7 +11,12 @@ describe('varDecl', () => {
 
     expect(parser.statements[0]).toStrictEqual(
       new Statement.VarStatement(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 1 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'foo',
+          line: 1,
+          column: 5,
+        }),
       ),
     );
   });
@@ -25,7 +30,12 @@ describe('varDecl', () => {
 
     expect(parser.statements[0]).toStrictEqual(
       new Statement.VarStatement(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 1 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'foo',
+          line: 1,
+          column: 5,
+        }),
         new Expression.LiteralExpression(1),
       ),
     );

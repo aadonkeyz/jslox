@@ -23,7 +23,12 @@ var a = test();
 
     expect(
       interpreter.environment.get(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'a', line: 3 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'a',
+          line: 3,
+          column: 1,
+        }),
       ),
     ).toStrictEqual(null);
   });
@@ -50,7 +55,12 @@ var b = test();
 
     expect(
       interpreter.environment.get(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'b', line: 6 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'b',
+          line: 6,
+          column: 1,
+        }),
       ),
     ).toStrictEqual(1);
   });
@@ -85,13 +95,23 @@ var b = counter();
 
     expect(
       interpreter.environment.get(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'a', line: 13 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'a',
+          line: 13,
+          column: 1,
+        }),
       ),
     ).toStrictEqual(1);
 
     expect(
       interpreter.environment.get(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'b', line: 14 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'b',
+          line: 14,
+          column: 1,
+        }),
       ),
     ).toStrictEqual(2);
   });
@@ -119,7 +139,12 @@ var a = fibonacci(10);
 
     expect(
       interpreter.environment.get(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'a', line: 7 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'a',
+          line: 7,
+          column: 1,
+        }),
       ),
     ).toStrictEqual(55);
   });
@@ -153,13 +178,23 @@ var c;
 
     expect(
       interpreter.environment.get(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'b', line: 3 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'b',
+          line: 3,
+          column: 1,
+        }),
       ),
     ).toStrictEqual('global');
 
     expect(
       interpreter.environment.get(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'c', line: 4 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'c',
+          line: 4,
+          column: 1,
+        }),
       ),
     ).toStrictEqual('global');
   });

@@ -13,7 +13,7 @@ describe('exprStmt', () => {
       new Statement.ExpressionStatement(
         new Expression.BinaryExpression(
           new Expression.LiteralExpression(1),
-          new Token({ type: TokenType.PLUS, lexeme: '+', line: 1 }),
+          new Token({ type: TokenType.PLUS, lexeme: '+', line: 1, column: 3 }),
           new Expression.LiteralExpression(2),
         ),
       ),

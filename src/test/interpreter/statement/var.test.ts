@@ -21,7 +21,12 @@ var foo;
     interpreter.interpret();
     expect(
       interpreter.environment.get(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 2 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'foo',
+          line: 2,
+          column: 1,
+        }),
       ),
     ).toStrictEqual(null);
   });
@@ -43,7 +48,12 @@ var foo = 1;
     interpreter.interpret();
     expect(
       interpreter.environment.get(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 2 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'foo',
+          line: 2,
+          column: 1,
+        }),
       ),
     ).toStrictEqual(1);
   });

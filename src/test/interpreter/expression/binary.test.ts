@@ -7,7 +7,7 @@ describe('binary', () => {
     const interpreter = new Interpreter([]);
     const expression = new Expression.BinaryExpression(
       new Expression.LiteralExpression(100),
-      new Token({ type: TokenType.STAR, lexeme: '*', line: 1 }),
+      new Token({ type: TokenType.STAR, lexeme: '*', line: 1, column: 5 }),
       new Expression.LiteralExpression(100),
     );
     expect(interpreter.visitBinaryExpression(expression)).toStrictEqual(10000);

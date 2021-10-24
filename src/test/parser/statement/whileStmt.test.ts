@@ -16,12 +16,22 @@ while (foo) {
     expect(parser.statements[0]).toStrictEqual(
       new Statement.WhileStatement(
         new Expression.VariableExpression(
-          new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 2 }),
+          new Token({
+            type: TokenType.IDENTIFIER,
+            lexeme: 'foo',
+            line: 2,
+            column: 8,
+          }),
         ),
         new Statement.BlockStatement([
           new Statement.PrintStatement(
             new Expression.VariableExpression(
-              new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 3 }),
+              new Token({
+                type: TokenType.IDENTIFIER,
+                lexeme: 'foo',
+                line: 3,
+                column: 9,
+              }),
             ),
           ),
         ]),

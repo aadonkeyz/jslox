@@ -72,17 +72,20 @@ class Token {
   type: TokenType;
   lexeme: string;
   line: number;
+  column: number;
   literal?: LiteralValue;
 
   constructor(props: {
     type: TokenType;
     lexeme: string;
     line: number;
+    column: number;
     literal?: LiteralValue;
   }) {
     this.type = props.type;
     this.lexeme = props.lexeme;
     this.line = props.line;
+    this.column = props.column;
     this.literal = props.literal;
   }
 }

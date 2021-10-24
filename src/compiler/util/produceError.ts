@@ -1,5 +1,5 @@
-function produceError(line: number, where: string, message: string): Error {
-  return new Error(`${message} at "${where}" in line ${line}.`);
+function produceError(line: number, column: number, message: string): Error {
+  return new Error(`${message} in line ${line} column ${column}.`);
 }
 
 export default produceError;

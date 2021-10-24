@@ -44,7 +44,12 @@ describe('block', () => {
           new Statement.ExpressionStatement(
             new Expression.BinaryExpression(
               new Expression.LiteralExpression(2),
-              new Token({ type: TokenType.PLUS, lexeme: '+', line: 5 }),
+              new Token({
+                type: TokenType.PLUS,
+                lexeme: '+',
+                line: 5,
+                column: 7,
+              }),
               new Expression.LiteralExpression(2),
             ),
           ),

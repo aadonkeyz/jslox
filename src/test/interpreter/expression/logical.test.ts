@@ -7,7 +7,7 @@ describe('logical', () => {
     const interpreter = new Interpreter([]);
     const expression = new Expression.LogicalExpression(
       new Expression.LiteralExpression(1),
-      new Token({ type: TokenType.AND, lexeme: 'and', line: 1 }),
+      new Token({ type: TokenType.AND, lexeme: 'and', line: 1, column: 1 }),
       new Expression.LiteralExpression(2),
     );
     expect(interpreter.visitLogicalExpression(expression)).toStrictEqual(2);
@@ -17,7 +17,7 @@ describe('logical', () => {
     const interpreter = new Interpreter([]);
     const expression = new Expression.LogicalExpression(
       new Expression.LiteralExpression(0),
-      new Token({ type: TokenType.AND, lexeme: 'and', line: 1 }),
+      new Token({ type: TokenType.AND, lexeme: 'and', line: 1, column: 1 }),
       new Expression.LiteralExpression(2),
     );
     expect(interpreter.visitLogicalExpression(expression)).toStrictEqual(0);
@@ -27,7 +27,7 @@ describe('logical', () => {
     const interpreter = new Interpreter([]);
     const expression = new Expression.LogicalExpression(
       new Expression.LiteralExpression(1),
-      new Token({ type: TokenType.OR, lexeme: 'or', line: 1 }),
+      new Token({ type: TokenType.OR, lexeme: 'or', line: 1, column: 1 }),
       new Expression.LiteralExpression(2),
     );
     expect(interpreter.visitLogicalExpression(expression)).toStrictEqual(1);
@@ -37,7 +37,7 @@ describe('logical', () => {
     const interpreter = new Interpreter([]);
     const expression = new Expression.LogicalExpression(
       new Expression.LiteralExpression(0),
-      new Token({ type: TokenType.OR, lexeme: 'or', line: 1 }),
+      new Token({ type: TokenType.OR, lexeme: 'or', line: 1, column: 1 }),
       new Expression.LiteralExpression(2),
     );
     expect(interpreter.visitLogicalExpression(expression)).toStrictEqual(2);

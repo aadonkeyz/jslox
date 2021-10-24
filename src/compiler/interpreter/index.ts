@@ -53,8 +53,8 @@ class Interpreter {
       if (!(superclass instanceof LoxClass)) {
         throw produceError(
           node.superclass.name.line,
-          node.superclass.name.lexeme,
-          'Superclass must be a class.',
+          node.superclass.name.column,
+          `Superclass must be a class at "${node.superclass.name.lexeme}"`,
         );
       }
 
@@ -142,10 +142,8 @@ class Interpreter {
         this.execute(node.statements[i]);
       }
     } catch (error) {
-      if (error instanceof LoxReturn) {
-        this.environment = previous;
-        throw error;
-      }
+      this.environment = previous;
+      throw error;
     }
 
     this.environment = previous;
@@ -168,8 +166,8 @@ class Interpreter {
       if (typeof right !== 'number') {
         throw produceError(
           node.operator.line,
-          node.operator.lexeme,
-          'Operand must be a number',
+          node.operator.column,
+          `Operand must be a number at "${node.operator.lexeme}"`,
         );
       }
       return -right;
@@ -181,8 +179,8 @@ class Interpreter {
 
     throw produceError(
       node.operator.line,
-      node.operator.lexeme,
-      'Should not happen.',
+      node.operator.column,
+      'Should not happen',
     );
   }
 
@@ -204,8 +202,8 @@ class Interpreter {
 
         throw produceError(
           node.operator.line,
-          node.operator.lexeme,
-          'Operands must be two numbers or two strings',
+          node.operator.column,
+          `Operands must be two numbers or two strings "${node.operator.lexeme}"`,
         );
       case TokenType.MINUS:
       case TokenType.SLASH:
@@ -222,8 +220,8 @@ class Interpreter {
       default:
         throw produceError(
           node.operator.line,
-          node.operator.lexeme,
-          'Should not happen.',
+          node.operator.column,
+          'Should not happen',
         );
     }
   }
@@ -234,7 +232,11 @@ class Interpreter {
     right: EnvironmentValue,
   ): number | boolean {
     if (typeof left !== 'number' || typeof right !== 'number') {
-      throw produceError(token.line, token.lexeme, 'Operands must be numbers');
+      throw produceError(
+        token.line,
+        token.column,
+        `Operands must be numbers at "${token.lexeme}"`,
+      );
     }
     switch (token.type) {
       case TokenType.MINUS:
@@ -252,7 +254,7 @@ class Interpreter {
       case TokenType.LESS_EQUAL:
         return left <= right;
       default:
-        throw produceError(token.line, token.lexeme, 'Should not happen.');
+        throw produceError(token.line, token.column, 'Should not happen');
     }
   }
 
@@ -275,8 +277,8 @@ class Interpreter {
 
     throw produceError(
       node.operator.line,
-      node.operator.lexeme,
-      'Should not happen.',
+      node.operator.column,
+      'Should not happen',
     );
   }
 
@@ -318,16 +320,16 @@ class Interpreter {
     if (!(callee instanceof LoxFunction || callee instanceof LoxClass)) {
       throw produceError(
         node.endParenthese.line,
-        node.endParenthese.lexeme,
-        'Can only call functions and classes.',
+        node.endParenthese.column,
+        `Can only call functions and classes at "${node.endParenthese.lexeme}"`,
       );
     }
 
     if (args.length !== callee.arity()) {
       throw produceError(
         node.endParenthese.line,
-        node.endParenthese.lexeme,
-        `Expect ${callee.arity()} arguments but got ${args.length}.`,
+        node.endParenthese.column,
+        `Expect ${callee.arity()} arguments but got ${args.length} at ")"`,
       );
     }
 
@@ -342,8 +344,8 @@ class Interpreter {
 
     throw produceError(
       node.name.line,
-      node.name.lexeme,
-      'Only instances have properties.',
+      node.name.column,
+      `Only instances have properties at "${node.name.lexeme}"`,
     );
   }
 
@@ -360,8 +362,8 @@ class Interpreter {
 
     throw produceError(
       node.name.line,
-      node.name.lexeme,
-      'Only instances have properties.',
+      node.name.column,
+      `Only instances have properties at "${node.name.lexeme}"`,
     );
   }
 
@@ -388,7 +390,7 @@ class Interpreter {
 
     throw produceError(
       node.keyword.line,
-      node.keyword.lexeme,
+      node.keyword.column,
       `Undefined property ${node.method.lexeme}`,
     );
   }

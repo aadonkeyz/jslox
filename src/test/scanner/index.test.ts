@@ -105,10 +105,12 @@ describe('scanner', () => {
     expect(scanner.errors.length).toBe(2);
 
     expect(scanner.errors[0].line).toBe(1);
-    expect(scanner.errors[0].message).toBe('Unexpected character.');
+    expect(scanner.errors[0].column).toBe(1);
+    expect(scanner.errors[0].message).toBe('Unexpected character');
 
     expect(scanner.errors[1].line).toBe(1);
-    expect(scanner.errors[1].message).toBe('Unterminated string.');
+    expect(scanner.errors[1].column).toBe(11);
+    expect(scanner.errors[1].message).toBe('Unterminated string');
 
     expect(scanner.tokens[0].type).toBe(TokenType.NUMBER);
     expect(scanner.tokens[0].lexeme).toBe('1');

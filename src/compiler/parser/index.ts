@@ -39,7 +39,7 @@ class Parser {
   tokens: Token[];
   current: number;
   statements: Statement.BaseStatement[];
-  errors: { line: number; where: string; message: string }[];
+  errors: { line: number; column: number; message: string }[];
 
   constructor(tokens: Token[]) {
     this.tokens = tokens;
@@ -79,53 +79,53 @@ class Parser {
 
   funDecl(kind: 'function' | 'method'): Statement.FunctionStatement {
     const name = this.consume(TokenType.IDENTIFIER, `Expect ${kind} name`);
-    this.consume(TokenType.LEFT_PARENTHESE, `Expect "(" after ${kind} name.`);
+    this.consume(TokenType.LEFT_PARENTHESE, `Expect "(" after ${kind} name`);
 
     const params: Token[] = [];
     if (!this.check(TokenType.RIGHT_PARENTHESE)) {
       do {
         params.push(
-          this.consume(TokenType.IDENTIFIER, 'Expect parameter name.'),
+          this.consume(TokenType.IDENTIFIER, 'Expect parameter name'),
         );
       } while (this.match([TokenType.COMMA]));
     }
-    this.consume(TokenType.RIGHT_PARENTHESE, 'Expect ")" after parameters.');
+    this.consume(TokenType.RIGHT_PARENTHESE, 'Expect ")" after parameters');
 
-    this.consume(TokenType.LEFT_BRACE, `Expect "{" before ${kind} body.`);
+    this.consume(TokenType.LEFT_BRACE, `Expect "{" before ${kind} body`);
     const body = new Statement.BlockStatement(this.block());
 
     return new Statement.FunctionStatement(name, params, body);
   }
 
   classDecl(): Statement.ClassStatement {
-    const name = this.consume(TokenType.IDENTIFIER, `Expect class name.`);
+    const name = this.consume(TokenType.IDENTIFIER, `Expect class name`);
 
     let superclass = null;
     if (this.match([TokenType.LESS])) {
-      this.consume(TokenType.IDENTIFIER, 'Expect superclass name.');
+      this.consume(TokenType.IDENTIFIER, 'Expect superclass name');
       superclass = new Expression.VariableExpression(this.previous());
     }
 
-    this.consume(TokenType.LEFT_BRACE, 'Expect "{" before class body.');
+    this.consume(TokenType.LEFT_BRACE, 'Expect "{" before class body');
 
     const methods: Statement.FunctionStatement[] = [];
     while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
       methods.push(this.funDecl('method'));
     }
 
-    this.consume(TokenType.RIGHT_BRACE, 'Expect "}" after class body.');
+    this.consume(TokenType.RIGHT_BRACE, 'Expect "}" after class body');
 
     return new Statement.ClassStatement(name, superclass, methods);
   }
 
   varDecl(): Statement.VarStatement {
-    const name = this.consume(TokenType.IDENTIFIER, 'Expect variable name.');
+    const name = this.consume(TokenType.IDENTIFIER, 'Expect variable name');
     let initializer;
     if (this.match([TokenType.EQUAL])) {
       initializer = this.expression();
     }
 
-    this.consume(TokenType.SEMICOLON, 'Expect ";" after variable declaration.');
+    this.consume(TokenType.SEMICOLON, 'Expect ";" after variable declaration');
     return new Statement.VarStatement(name, initializer);
   }
 
@@ -158,11 +158,11 @@ class Parser {
   }
 
   ifStmt(): Statement.IfStatement {
-    this.consume(TokenType.LEFT_PARENTHESE, 'Expect "(" after "if".');
+    this.consume(TokenType.LEFT_PARENTHESE, 'Expect "(" after "if"');
 
     const condition = this.expression();
 
-    this.consume(TokenType.RIGHT_PARENTHESE, 'Expect ")" after if condition.');
+    this.consume(TokenType.RIGHT_PARENTHESE, 'Expect ")" after if condition');
 
     const thenBranch = this.statement();
     const elseBranch = this.match([TokenType.ELSE])
@@ -182,19 +182,19 @@ class Parser {
       }
     }
 
-    this.consume(TokenType.RIGHT_BRACE, 'Expect "}" after block.');
+    this.consume(TokenType.RIGHT_BRACE, 'Expect "}" after block');
     return statements;
   }
 
   exprStmt(): Statement.ExpressionStatement {
     const expression = this.expression();
-    this.consume(TokenType.SEMICOLON, 'Expect ";" after expression.');
+    this.consume(TokenType.SEMICOLON, 'Expect ";" after expression');
     return new Statement.ExpressionStatement(expression);
   }
 
   printStmt(): Statement.PrintStatement {
     const expression = this.expression();
-    this.consume(TokenType.SEMICOLON, 'Expect ";" after value.');
+    this.consume(TokenType.SEMICOLON, 'Expect ";" after value');
     return new Statement.PrintStatement(expression);
   }
 
@@ -203,26 +203,26 @@ class Parser {
     const value = this.check(TokenType.SEMICOLON)
       ? new Expression.LiteralExpression(null)
       : this.expression();
-    this.consume(TokenType.SEMICOLON, 'Expect ";" after return value.');
+    this.consume(TokenType.SEMICOLON, 'Expect ";" after return value');
     return new Statement.ReturnStatement(keyword, value);
   }
 
   whileStmt(): Statement.WhileStatement {
-    this.consume(TokenType.LEFT_PARENTHESE, 'Expect "(" after "while".');
+    this.consume(TokenType.LEFT_PARENTHESE, 'Expect "(" after "while"');
     const condition = this.expression();
-    this.consume(TokenType.RIGHT_PARENTHESE, 'Expect ")" after condition.');
+    this.consume(TokenType.RIGHT_PARENTHESE, 'Expect ")" after condition');
     const statement = this.statement();
     return new Statement.WhileStatement(condition, statement);
   }
 
   forStmt(): Statement.ForStatement {
-    this.consume(TokenType.LEFT_PARENTHESE, 'Expect "(" after "for".');
+    this.consume(TokenType.LEFT_PARENTHESE, 'Expect "(" after "for"');
 
     if (this.check(TokenType.RIGHT_PARENTHESE)) {
       this.errors.push({
         line: this.peek().line,
-        where: this.peek().lexeme,
-        message: 'There is nothing exist in the parenthese of "for".',
+        column: this.peek().column,
+        message: 'There is nothing exist in the parenthese of "for"',
       });
       throw new Error();
     }
@@ -241,7 +241,7 @@ class Parser {
       condition = this.expression();
       this.consume(
         TokenType.SEMICOLON,
-        'Expect ";" after the condition of "for".',
+        'Expect ";" after the condition of "for"',
       );
     }
 
@@ -249,7 +249,7 @@ class Parser {
       updator = this.expression();
       this.consume(
         TokenType.RIGHT_PARENTHESE,
-        'Expect ")" after the parenthese of "for".',
+        'Expect ")" after the parenthese of "for"',
       );
     }
 
@@ -287,8 +287,8 @@ class Parser {
 
       this.errors.push({
         line: equals.line,
-        where: equals.lexeme,
-        message: 'Invalid assignment target.',
+        column: equals.column,
+        message: 'Invalid assignment target',
       });
       throw new Error();
     }
@@ -403,7 +403,7 @@ class Parser {
       } else if (previousType === TokenType.DOT) {
         const name = this.consume(
           TokenType.IDENTIFIER,
-          'Expect property name after ".".',
+          'Expect property name after "."',
         );
         expression = new Expression.GetExpression(expression, name);
       }
@@ -423,7 +423,7 @@ class Parser {
 
     const endParenthese = this.consume(
       TokenType.RIGHT_PARENTHESE,
-      'Expect ")" after arguments.',
+      'Expect ")" after arguments',
     );
 
     return new Expression.CallExpression(callee, args, endParenthese);
@@ -454,8 +454,8 @@ class Parser {
 
     if (this.match([TokenType.SUPER])) {
       const keyword = this.previous();
-      this.consume(TokenType.DOT, 'Expect "." after "super".');
-      this.consume(TokenType.IDENTIFIER, 'Expect superclass method name.');
+      this.consume(TokenType.DOT, 'Expect "." after "super"');
+      this.consume(TokenType.IDENTIFIER, 'Expect superclass method name');
       return new Expression.SuperExpression(keyword, this.previous());
     }
 
@@ -465,14 +465,14 @@ class Parser {
 
     if (this.match([TokenType.LEFT_PARENTHESE])) {
       const expression = new Expression.GroupingExpression(this.expression());
-      this.consume(TokenType.RIGHT_PARENTHESE, 'Expect ")" after expression.');
+      this.consume(TokenType.RIGHT_PARENTHESE, 'Expect ")" after expression');
       return expression;
     }
 
     this.errors.push({
       line: this.peek().line,
-      where: this.peek().lexeme,
-      message: `Unexpected token "${this.peek().lexeme}".`,
+      column: this.peek().column,
+      message: `Unexpected token "${this.peek().lexeme}"`,
     });
     throw new Error();
   }
@@ -495,8 +495,7 @@ class Parser {
 
     this.errors.push({
       line: this.peek().line,
-      where:
-        tokenType === TokenType.EOF ? 'at end' : `at ${this.peek().lexeme}`,
+      column: this.peek().column,
       message,
     });
     throw new Error();
@@ -530,8 +529,6 @@ class Parser {
   }
 
   synchronize() {
-    this.advance();
-
     while (!this.isAtEnd()) {
       if (this.previous().type === TokenType.SEMICOLON) return;
 
@@ -544,6 +541,7 @@ class Parser {
         case TokenType.WHILE:
         case TokenType.PRINT:
         case TokenType.RETURN:
+        case TokenType.RIGHT_BRACE:
           return;
       }
 

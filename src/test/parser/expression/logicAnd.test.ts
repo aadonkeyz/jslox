@@ -12,10 +12,10 @@ describe('logicAnd', () => {
     expect(root).toStrictEqual(
       new Expression.LogicalExpression(
         new Expression.LiteralExpression(1),
-        new Token({ type: TokenType.AND, lexeme: 'and', line: 1 }),
+        new Token({ type: TokenType.AND, lexeme: 'and', line: 1, column: 3 }),
         new Expression.BinaryExpression(
           new Expression.LiteralExpression(2),
-          new Token({ type: TokenType.STAR, lexeme: '*', line: 1 }),
+          new Token({ type: TokenType.STAR, lexeme: '*', line: 1, column: 9 }),
           new Expression.LiteralExpression(3),
         ),
       ),

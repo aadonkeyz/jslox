@@ -12,12 +12,12 @@ describe('factor', () => {
     expect(root).toStrictEqual(
       new Expression.BinaryExpression(
         new Expression.UnaryExpression(
-          new Token({ type: TokenType.MINUS, lexeme: '-', line: 1 }),
+          new Token({ type: TokenType.MINUS, lexeme: '-', line: 1, column: 1 }),
           new Expression.LiteralExpression(1),
         ),
-        new Token({ type: TokenType.SLASH, lexeme: '/', line: 1 }),
+        new Token({ type: TokenType.SLASH, lexeme: '/', line: 1, column: 3 }),
         new Expression.UnaryExpression(
-          new Token({ type: TokenType.BANG, lexeme: '!', line: 1 }),
+          new Token({ type: TokenType.BANG, lexeme: '!', line: 1, column: 4 }),
           new Expression.LiteralExpression(true),
         ),
       ),
@@ -34,9 +34,9 @@ describe('factor', () => {
     expect(root).toStrictEqual(
       new Expression.BinaryExpression(
         new Expression.LiteralExpression(1),
-        new Token({ type: TokenType.STAR, lexeme: '*', line: 1 }),
+        new Token({ type: TokenType.STAR, lexeme: '*', line: 1, column: 2 }),
         new Expression.UnaryExpression(
-          new Token({ type: TokenType.MINUS, lexeme: '-', line: 1 }),
+          new Token({ type: TokenType.MINUS, lexeme: '-', line: 1, column: 3 }),
           new Expression.LiteralExpression(1),
         ),
       ),

@@ -16,24 +16,39 @@ var c = 3;
 
     expect(parser.errors[0]).toStrictEqual({
       line: 4,
-      where: '=',
-      message: 'Unexpected token "=".',
+      column: 5,
+      message: 'Unexpected token "="',
     });
     expect(parser.statements[0]).toStrictEqual(
       new Statement.VarStatement(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'a', line: 2 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'a',
+          line: 2,
+          column: 5,
+        }),
         new Expression.LiteralExpression(1),
       ),
     );
     expect(parser.statements[1]).toStrictEqual(
       new Statement.VarStatement(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'b', line: 3 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'b',
+          line: 3,
+          column: 5,
+        }),
         new Expression.LiteralExpression(2),
       ),
     );
     expect(parser.statements[2]).toStrictEqual(
       new Statement.VarStatement(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'c', line: 5 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'c',
+          line: 5,
+          column: 5,
+        }),
         new Expression.LiteralExpression(3),
       ),
     );

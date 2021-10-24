@@ -24,8 +24,8 @@ class LoxInstance {
 
     throw produceError(
       name.line,
-      name.lexeme,
-      `Undefined property "${name.lexeme}".`,
+      name.column,
+      `Undefined property "${name.lexeme}"`,
     );
   }
 

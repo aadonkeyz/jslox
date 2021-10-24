@@ -20,7 +20,7 @@ class ScopeAnalyst {
   scopeRecord: Map<Expression.BaseExpression, number>;
   functionType: FunctionType;
   classType: ClassType;
-  errors: { line: number; where: string; message: string }[];
+  errors: { line: number; column: number; message: string }[];
 
   constructor(statements: Statement.BaseStatement[]) {
     this.statements = statements;
@@ -143,8 +143,8 @@ class ScopeAnalyst {
     if (this.functionType === FunctionType.NONE) {
       this.errors.push({
         line: node.keyword.line,
-        where: node.keyword.lexeme,
-        message: "Can't return from top-level code.",
+        column: node.keyword.column,
+        message: "Can't return from top-level code",
       });
     }
 
@@ -152,8 +152,8 @@ class ScopeAnalyst {
       if (this.functionType === FunctionType.INITIALIZER) {
         this.errors.push({
           line: node.keyword.line,
-          where: node.keyword.lexeme,
-          message: "Can't use return a value from an initializer.",
+          column: node.keyword.column,
+          message: "Can't use return a value from an initializer",
         });
       }
 
@@ -171,8 +171,8 @@ class ScopeAnalyst {
       if (node.name.lexeme === node.superclass.name.lexeme) {
         this.errors.push({
           line: node.name.line,
-          where: node.name.lexeme,
-          message: "A class can't inherit from itself.",
+          column: node.name.column,
+          message: `A class can't inherit from itself("${node.name.lexeme}")`,
         });
       }
 
@@ -232,8 +232,8 @@ class ScopeAnalyst {
     ) {
       this.errors.push({
         line: node.name.line,
-        where: node.name.lexeme,
-        message: "Can't read local variable in its own initializer.",
+        column: node.name.column,
+        message: `Can't read local variable in its own initializer("${node.name.lexeme}")`,
       });
     }
 
@@ -263,8 +263,8 @@ class ScopeAnalyst {
     if (this.classType === ClassType.NONE) {
       this.errors.push({
         line: node.keyword.line,
-        where: node.keyword.lexeme,
-        message: "Can't use 'this' outside of a class.",
+        column: node.keyword.column,
+        message: 'Can\'t use "this" outside of a class',
       });
     }
     this.calculate(node, node.keyword);
@@ -274,14 +274,14 @@ class ScopeAnalyst {
     if (this.classType === ClassType.NONE) {
       this.errors.push({
         line: node.keyword.line,
-        where: node.keyword.lexeme,
-        message: 'Can\'t use "super" outside of a class.',
+        column: node.keyword.column,
+        message: 'Can\'t use "super" outside of a class',
       });
     } else if (this.classType === ClassType.CLASS) {
       this.errors.push({
         line: node.keyword.line,
-        where: node.keyword.lexeme,
-        message: 'Can\'t use "super" in a class with no superclass.',
+        column: node.keyword.column,
+        message: 'Can\'t use "super" in a class with no superclass',
       });
     }
 

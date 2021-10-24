@@ -11,7 +11,7 @@ describe('unary', () => {
 
     expect(root).toStrictEqual(
       new Expression.UnaryExpression(
-        new Token({ type: TokenType.BANG, lexeme: '!', line: 1 }),
+        new Token({ type: TokenType.BANG, lexeme: '!', line: 1, column: 1 }),
         new Expression.LiteralExpression(true),
       ),
     );
@@ -26,7 +26,7 @@ describe('unary', () => {
 
     expect(root).toStrictEqual(
       new Expression.UnaryExpression(
-        new Token({ type: TokenType.MINUS, lexeme: '-', line: 1 }),
+        new Token({ type: TokenType.MINUS, lexeme: '-', line: 1, column: 1 }),
         new Expression.LiteralExpression(1),
       ),
     );
@@ -41,9 +41,9 @@ describe('unary', () => {
 
     expect(root).toStrictEqual(
       new Expression.UnaryExpression(
-        new Token({ type: TokenType.BANG, lexeme: '!', line: 1 }),
+        new Token({ type: TokenType.BANG, lexeme: '!', line: 1, column: 1 }),
         new Expression.UnaryExpression(
-          new Token({ type: TokenType.BANG, lexeme: '!', line: 1 }),
+          new Token({ type: TokenType.BANG, lexeme: '!', line: 1, column: 2 }),
           new Expression.LiteralExpression(true),
         ),
       ),
@@ -59,9 +59,9 @@ describe('unary', () => {
 
     expect(root).toStrictEqual(
       new Expression.UnaryExpression(
-        new Token({ type: TokenType.MINUS, lexeme: '-', line: 1 }),
+        new Token({ type: TokenType.MINUS, lexeme: '-', line: 1, column: 1 }),
         new Expression.UnaryExpression(
-          new Token({ type: TokenType.MINUS, lexeme: '-', line: 1 }),
+          new Token({ type: TokenType.MINUS, lexeme: '-', line: 1, column: 2 }),
           new Expression.LiteralExpression(1),
         ),
       ),

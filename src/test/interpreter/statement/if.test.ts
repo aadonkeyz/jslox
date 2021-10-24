@@ -28,7 +28,12 @@ if (foo) {
 
     expect(
       interpreter.environment.get(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'bar', line: 3 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'bar',
+          line: 3,
+          column: 1,
+        }),
       ),
     ).toStrictEqual(2);
   });

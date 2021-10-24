@@ -29,7 +29,11 @@ class Environment {
       return this.enclosing.get(name);
     }
 
-    throw produceError(name.line, name.lexeme, 'Undefined variable');
+    throw produceError(
+      name.line,
+      name.column,
+      `Undefined variable at "${name.lexeme}"`,
+    );
   }
 
   getEnvironmentByDistance(distance: number): Environment {
@@ -54,7 +58,11 @@ class Environment {
       return;
     }
 
-    throw produceError(name.line, name.lexeme, 'Undefined variable');
+    throw produceError(
+      name.line,
+      name.column,
+      `Undefined variable at "${name.lexeme}"`,
+    );
   }
 }
 

@@ -8,18 +8,38 @@ describe('call', () => {
     const interpreter = new Interpreter([]);
     const expression = new Expression.CallExpression(
       new Expression.VariableExpression(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 1 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'foo',
+          line: 1,
+          column: 1,
+        }),
       ),
       [],
-      new Token({ type: TokenType.RIGHT_PARENTHESE, lexeme: ')', line: 1 }),
+      new Token({
+        type: TokenType.RIGHT_PARENTHESE,
+        lexeme: ')',
+        line: 1,
+        column: 1,
+      }),
     );
     const callee = new LoxFunction(
       new Statement.FunctionStatement(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 1 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'foo',
+          line: 1,
+          column: 1,
+        }),
         [],
         new Statement.BlockStatement([
           new Statement.ReturnStatement(
-            new Token({ type: TokenType.RETURN, lexeme: 'return', line: 1 }),
+            new Token({
+              type: TokenType.RETURN,
+              lexeme: 'return',
+              line: 1,
+              column: 1,
+            }),
             new Expression.LiteralExpression(1),
           ),
         ]),
@@ -32,22 +52,54 @@ describe('call', () => {
 
   test('with args', () => {
     const argBarNode = new Expression.VariableExpression(
-      new Token({ type: TokenType.IDENTIFIER, lexeme: 'bar', line: 1 }),
+      new Token({
+        type: TokenType.IDENTIFIER,
+        lexeme: 'bar',
+        line: 1,
+        column: 1,
+      }),
     );
     const interpreter = new Interpreter([], new Map([[argBarNode, 0]]));
     const expression = new Expression.CallExpression(
       new Expression.VariableExpression(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 1 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'foo',
+          line: 1,
+          column: 1,
+        }),
       ),
       [new Expression.LiteralExpression(100)],
-      new Token({ type: TokenType.RIGHT_PARENTHESE, lexeme: ')', line: 1 }),
+      new Token({
+        type: TokenType.RIGHT_PARENTHESE,
+        lexeme: ')',
+        line: 1,
+        column: 1,
+      }),
     );
     const functionNode = new Statement.FunctionStatement(
-      new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 1 }),
-      [new Token({ type: TokenType.IDENTIFIER, lexeme: 'bar', line: 1 })],
+      new Token({
+        type: TokenType.IDENTIFIER,
+        lexeme: 'foo',
+        line: 1,
+        column: 1,
+      }),
+      [
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'bar',
+          line: 1,
+          column: 1,
+        }),
+      ],
       new Statement.BlockStatement([
         new Statement.ReturnStatement(
-          new Token({ type: TokenType.RETURN, lexeme: 'return', line: 1 }),
+          new Token({
+            type: TokenType.RETURN,
+            lexeme: 'return',
+            line: 1,
+            column: 1,
+          }),
           argBarNode,
         ),
       ]),
@@ -63,18 +115,38 @@ describe('call', () => {
     const interpreter = new Interpreter([]);
     const expression = new Expression.CallExpression(
       new Expression.VariableExpression(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 1 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'foo',
+          line: 1,
+          column: 1,
+        }),
       ),
       [new Expression.LiteralExpression(1)],
-      new Token({ type: TokenType.RIGHT_PARENTHESE, lexeme: ')', line: 1 }),
+      new Token({
+        type: TokenType.RIGHT_PARENTHESE,
+        lexeme: ')',
+        line: 1,
+        column: 1,
+      }),
     );
     const callee = new LoxFunction(
       new Statement.FunctionStatement(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 1 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'foo',
+          line: 1,
+          column: 1,
+        }),
         [],
         new Statement.BlockStatement([
           new Statement.ReturnStatement(
-            new Token({ type: TokenType.RETURN, lexeme: 'return', line: 1 }),
+            new Token({
+              type: TokenType.RETURN,
+              lexeme: 'return',
+              line: 1,
+              column: 1,
+            }),
             new Expression.LiteralExpression(1),
           ),
         ]),
@@ -87,7 +159,7 @@ describe('call', () => {
     } catch (error) {
       // eslint-disable-next-line jest/no-conditional-expect
       expect((error as Error).message).toBe(
-        'Expect 0 arguments but got 1. at ")" in line 1.',
+        'Expect 0 arguments but got 1 at ")" in line 1 column 1.',
       );
     }
   });

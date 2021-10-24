@@ -24,7 +24,12 @@ describe('printStmt', () => {
     expect(parser.statements[0]).toStrictEqual(
       new Statement.PrintStatement(
         new Expression.VariableExpression(
-          new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 1 }),
+          new Token({
+            type: TokenType.IDENTIFIER,
+            lexeme: 'foo',
+            line: 1,
+            column: 7,
+          }),
         ),
       ),
     );

@@ -34,7 +34,7 @@ print bar;
       expect('first should console 2').toStrictEqual('first should console 2');
       // eslint-disable-next-line jest/no-conditional-expect
       expect((error as Error).message).toBe(
-        'Undefined variable at "bar" in line 9.',
+        'Undefined variable at "bar" in line 9 column 7.',
       );
     }
   });

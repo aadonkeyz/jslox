@@ -14,10 +14,20 @@ test();
     expect(root).toStrictEqual(
       new Expression.CallExpression(
         new Expression.VariableExpression(
-          new Token({ type: TokenType.IDENTIFIER, lexeme: 'test', line: 2 }),
+          new Token({
+            type: TokenType.IDENTIFIER,
+            lexeme: 'test',
+            line: 2,
+            column: 1,
+          }),
         ),
         [],
-        new Token({ type: TokenType.RIGHT_PARENTHESE, lexeme: ')', line: 2 }),
+        new Token({
+          type: TokenType.RIGHT_PARENTHESE,
+          lexeme: ')',
+          line: 2,
+          column: 6,
+        }),
       ),
     );
   });
@@ -34,17 +44,37 @@ test(a, b);
     expect(root).toStrictEqual(
       new Expression.CallExpression(
         new Expression.VariableExpression(
-          new Token({ type: TokenType.IDENTIFIER, lexeme: 'test', line: 2 }),
+          new Token({
+            type: TokenType.IDENTIFIER,
+            lexeme: 'test',
+            line: 2,
+            column: 1,
+          }),
         ),
         [
           new Expression.VariableExpression(
-            new Token({ type: TokenType.IDENTIFIER, lexeme: 'a', line: 2 }),
+            new Token({
+              type: TokenType.IDENTIFIER,
+              lexeme: 'a',
+              line: 2,
+              column: 6,
+            }),
           ),
           new Expression.VariableExpression(
-            new Token({ type: TokenType.IDENTIFIER, lexeme: 'b', line: 2 }),
+            new Token({
+              type: TokenType.IDENTIFIER,
+              lexeme: 'b',
+              line: 2,
+              column: 9,
+            }),
           ),
         ],
-        new Token({ type: TokenType.RIGHT_PARENTHESE, lexeme: ')', line: 2 }),
+        new Token({
+          type: TokenType.RIGHT_PARENTHESE,
+          lexeme: ')',
+          line: 2,
+          column: 10,
+        }),
       ),
     );
   });
@@ -68,6 +98,7 @@ test(a).b().c;
                   type: TokenType.IDENTIFIER,
                   lexeme: 'test',
                   line: 2,
+                  column: 1,
                 }),
               ),
               [
@@ -76,6 +107,7 @@ test(a).b().c;
                     type: TokenType.IDENTIFIER,
                     lexeme: 'a',
                     line: 2,
+                    column: 6,
                   }),
                 ),
               ],
@@ -83,14 +115,30 @@ test(a).b().c;
                 type: TokenType.RIGHT_PARENTHESE,
                 lexeme: ')',
                 line: 2,
+                column: 7,
               }),
             ),
-            new Token({ type: TokenType.IDENTIFIER, lexeme: 'b', line: 2 }),
+            new Token({
+              type: TokenType.IDENTIFIER,
+              lexeme: 'b',
+              line: 2,
+              column: 9,
+            }),
           ),
           [],
-          new Token({ type: TokenType.RIGHT_PARENTHESE, lexeme: ')', line: 2 }),
+          new Token({
+            type: TokenType.RIGHT_PARENTHESE,
+            lexeme: ')',
+            line: 2,
+            column: 11,
+          }),
         ),
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'c', line: 2 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'c',
+          line: 2,
+          column: 13,
+        }),
       ),
     );
   });

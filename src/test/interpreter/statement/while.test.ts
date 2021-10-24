@@ -25,7 +25,12 @@ while (foo) {
 
     expect(
       interpreter.environment.get(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'foo', line: 2 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'foo',
+          line: 2,
+          column: 1,
+        }),
       ),
     ).toStrictEqual(0);
   });
@@ -53,7 +58,12 @@ while (foo) {
 
     expect(
       interpreter.environment.get(
-        new Token({ type: TokenType.IDENTIFIER, lexeme: 'bar', line: 3 }),
+        new Token({
+          type: TokenType.IDENTIFIER,
+          lexeme: 'bar',
+          line: 3,
+          column: 1,
+        }),
       ),
     ).toStrictEqual(1);
   });
