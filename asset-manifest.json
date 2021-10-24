@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/jslox/static/css/main.fedd35e9.chunk.css",
+    "main.js": "/jslox/static/js/main.96e048bd.chunk.js",
+    "main.js.map": "/jslox/static/js/main.96e048bd.chunk.js.map",
+    "runtime-main.js": "/jslox/static/js/runtime-main.776a7662.js",
+    "runtime-main.js.map": "/jslox/static/js/runtime-main.776a7662.js.map",
+    "static/css/2.786ae0dd.chunk.css": "/jslox/static/css/2.786ae0dd.chunk.css",
+    "static/js/2.bed88330.chunk.js": "/jslox/static/js/2.bed88330.chunk.js",
+    "static/js/2.bed88330.chunk.js.map": "/jslox/static/js/2.bed88330.chunk.js.map",
+    "index.html": "/jslox/index.html",
+    "static/css/2.786ae0dd.chunk.css.map": "/jslox/static/css/2.786ae0dd.chunk.css.map",
+    "static/css/main.fedd35e9.chunk.css.map": "/jslox/static/css/main.fedd35e9.chunk.css.map",
+    "static/js/2.bed88330.chunk.js.LICENSE.txt": "/jslox/static/js/2.bed88330.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.776a7662.js",
+    "static/css/2.786ae0dd.chunk.css",
+    "static/js/2.bed88330.chunk.js",
+    "static/css/main.fedd35e9.chunk.css",
+    "static/js/main.96e048bd.chunk.js"
+  ]
+}
