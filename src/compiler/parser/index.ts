@@ -494,8 +494,8 @@ class Parser {
     }
 
     this.errors.push({
-      line: this.peek().line,
-      column: this.peek().column,
+      line: this.previous().line,
+      column: this.previous().column,
       message,
     });
     throw new Error();
@@ -541,7 +541,6 @@ class Parser {
         case TokenType.WHILE:
         case TokenType.PRINT:
         case TokenType.RETURN:
-        case TokenType.RIGHT_BRACE:
           return;
       }
 
