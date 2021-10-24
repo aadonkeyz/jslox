@@ -50,7 +50,7 @@ function Playground({ show }: { show: boolean }) {
       try {
         compilerRef.current.run();
       } catch (err) {
-        setOutput([(err as Error).message]);
+        setOutput((pre) => [...pre, (err as Error).message]);
       }
     }
   };
@@ -58,7 +58,24 @@ function Playground({ show }: { show: boolean }) {
   useEffect(() => {
     const originalLog = console.log;
     console.log = (...data: any[]) => {
-      setOutput((pre) => [...pre, ...data]);
+      setOutput((pre) => [
+        ...pre,
+        ...data.map((item) => {
+          if (item === null) {
+            return 'null';
+          }
+
+          if (!(item instanceof Object)) {
+            return item;
+          }
+
+          try {
+            return JSON.stringify(item);
+          } catch (err) {
+            return Object.prototype.toString.apply(item);
+          }
+        }),
+      ]);
       originalLog(...data);
     };
   }, []);

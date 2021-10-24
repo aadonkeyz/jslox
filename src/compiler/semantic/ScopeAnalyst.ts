@@ -148,7 +148,12 @@ class ScopeAnalyst {
       });
     }
 
-    if (node.value) {
+    if (
+      !(
+        node.value instanceof Expression.LiteralExpression &&
+        node.value.value === null
+      )
+    ) {
       if (this.functionType === FunctionType.INITIALIZER) {
         this.errors.push({
           line: node.keyword.line,
