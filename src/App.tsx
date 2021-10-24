@@ -22,6 +22,16 @@ function App() {
         <Menu.Item key={GRAMMER}>{GRAMMER}</Menu.Item>
       </Menu>
       <Playground show={active === PLAYGROUND} />
+      <iframe
+        style={{
+          display: active === GRAMMER ? '' : 'none',
+          flex: 'auto',
+          height: '100%',
+          border: 'none',
+        }}
+        title="grammer"
+        src="http://craftinginterpreters.com/the-lox-language.html"
+      />
     </div>
   );
 }
