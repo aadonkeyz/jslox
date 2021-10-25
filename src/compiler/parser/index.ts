@@ -529,6 +529,9 @@ class Parser {
   }
 
   synchronize() {
+    // avoid endless loop
+    this.advance();
+
     while (!this.isAtEnd()) {
       if (this.previous().type === TokenType.SEMICOLON) return;
 
