@@ -66,7 +66,7 @@ function Playground({ show }: { show: boolean }) {
           }
 
           if (!(item instanceof Object)) {
-            return item;
+            return String(item);
           }
 
           try {
