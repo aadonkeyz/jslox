@@ -2,12 +2,13 @@ import { Token } from '../scanner';
 import { produceError } from '../util';
 import { EnvironmentValue } from '../environment';
 import LoxClass from './LoxClass';
+import { LoxNativeClass } from './LoxNative';
 
 class LoxInstance {
-  belongClass: LoxClass;
+  belongClass: LoxClass | LoxNativeClass;
   fields: Record<string, EnvironmentValue>;
 
-  constructor(belongClass: LoxClass) {
+  constructor(belongClass: LoxClass | LoxNativeClass) {
     this.belongClass = belongClass;
     this.fields = {};
   }

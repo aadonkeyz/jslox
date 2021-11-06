@@ -21,10 +21,28 @@ const TAB_CONFIGS = [
   },
 ];
 
+const DEFAULT_CODE = `class Person {
+  init(name, birth) {
+    this.name = name;
+    this.birth = birth;
+    this.age = Date().getFullYear() - this.birth;
+  }
+
+  introduceMySelf() {
+    print "my name is " + this.name;
+    print "i am " + String(this.age) + " years old";
+    print "thanks for coming";
+  }
+}
+
+var me = Person("aadonkeyz", 1995);
+me.introduceMySelf();
+`;
+
 function Playground({ show }: { show: boolean }) {
   const [activeKey, setActiveKey] = useState<string>(TAB_CONFIGS[0].key);
   const [errors, setErrors] = useState<string[]>([]);
-  const [output, setOutput] = useState<any[]>([]);
+  const [output, setOutput] = useState<Array<string | number>>([]);
 
   const compilerRef = useRef<Compiler>();
 
@@ -78,6 +96,8 @@ function Playground({ show }: { show: boolean }) {
       ]);
       originalLog(...data);
     };
+
+    handleCodeChange(DEFAULT_CODE);
   }, []);
 
   return (
@@ -85,6 +105,7 @@ function Playground({ show }: { show: boolean }) {
       <Editor
         height="65%"
         defaultLanguage="plaintext"
+        defaultValue={DEFAULT_CODE}
         onChange={(value) => {
           handleCodeChange(value || '');
         }}
@@ -106,7 +127,7 @@ function Playground({ show }: { show: boolean }) {
               <Button
                 style={{ background: '#52c41a' }}
                 icon={<CaretRightOutlined />}
-                disabled={!compilerRef.current || errors.length > 0}
+                disabled={errors.length > 0}
                 onClick={handleRun}
               >
                 <span style={{ transform: 'translateY(-1px)' }}>Run</span>

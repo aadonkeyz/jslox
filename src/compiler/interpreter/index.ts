@@ -6,6 +6,8 @@ import LoxClass from './LoxClass';
 import LoxFunction from './LoxFunction';
 import LoxInstance from './LoxInstance';
 import LoxReturn from './LoxReturn';
+import { LoxNativeFunction, LoxNativeClass } from './LoxNative';
+import defineNative from './defineNative';
 
 class Interpreter {
   global: Environment;
@@ -21,6 +23,8 @@ class Interpreter {
     this.environment = this.global;
     this.statements = statements;
     this.scopeRecord = scopeRecord || new Map();
+
+    defineNative(this.global);
   }
 
   interpret(): void {
@@ -317,6 +321,13 @@ class Interpreter {
     const callee = this.evaluate(node.callee);
     const args = node.args.map((item) => this.evaluate(item));
 
+    if (
+      callee instanceof LoxNativeFunction ||
+      callee instanceof LoxNativeClass
+    ) {
+      return callee.call(args);
+    }
+
     if (!(callee instanceof LoxFunction || callee instanceof LoxClass)) {
       throw produceError(
         node.endParenthese.line,
@@ -396,4 +407,11 @@ class Interpreter {
   }
 }
 
-export { Interpreter as default, LoxClass, LoxFunction, LoxInstance };
+export {
+  Interpreter as default,
+  LoxClass,
+  LoxFunction,
+  LoxInstance,
+  LoxNativeFunction,
+  LoxNativeClass,
+};

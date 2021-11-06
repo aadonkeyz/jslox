@@ -1,11 +1,19 @@
 import { Token, LiteralValue } from '../scanner';
 import { produceError } from '../util';
-import { LoxClass, LoxFunction, LoxInstance } from '../interpreter';
+import {
+  LoxClass,
+  LoxFunction,
+  LoxInstance,
+  LoxNativeFunction,
+  LoxNativeClass,
+} from '../interpreter';
 
 export type EnvironmentValue =
   | LoxClass
   | LoxFunction
   | LoxInstance
+  | LoxNativeFunction
+  | LoxNativeClass
   | LiteralValue;
 class Environment {
   values: Record<string, EnvironmentValue>;
